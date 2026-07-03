@@ -7,7 +7,7 @@ export type FormValues = Record<string, unknown>
  * not a hand-picked subset — a submission must reflect the exact template that
  * produced it, even after the live template is edited or re-shaped later.
  */
-export interface FormInstance {
+export interface FormResponse {
   id: string
   templateId: string
   templateSnapshot: FormTemplate

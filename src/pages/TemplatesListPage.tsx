@@ -1,11 +1,12 @@
 import { useNavigate } from 'react-router-dom'
 import { useTemplates } from '../context/TemplatesContext'
-import { useInstances } from '../context/InstancesContext'
+import { useResponses } from '../context/ResponsesContext'
+import { formatDateTime } from '../utils/formatDateTime'
 
 export function TemplatesListPage() {
   const navigate = useNavigate()
   const { templates } = useTemplates()
-  const { instances } = useInstances()
+  const { responses } = useResponses()
 
   return (
     <div className="mx-auto max-w-4xl p-8">
@@ -25,21 +26,49 @@ export function TemplatesListPage() {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {templates.map((template) => {
-            const instanceCount = instances.filter((i) => i.templateId === template.id).length
+            const responseCount = responses.filter((r) => r.templateId === template.id).length
             return (
-              <button
+              // A div, not a button — it wraps two real buttons below, and
+              // button-in-button isn't valid HTML.
+              <div
                 key={template.id}
-                type="button"
+                role="button"
+                tabIndex={0}
                 onClick={() => navigate(`/builder/${template.id}`)}
-                className="rounded border border-slate-200 p-4 text-left hover:border-blue-400 hover:shadow"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') navigate(`/builder/${template.id}`)
+                }}
+                className="cursor-pointer rounded border border-slate-200 p-4 text-left hover:border-blue-400 hover:shadow"
               >
                 <h2 className="font-medium">{template.title}</h2>
                 <p className="mt-1 text-sm text-slate-500">{template.fields.length} field(s)</p>
-                <p className="text-sm text-slate-500">{instanceCount} response(s)</p>
+                <p className="text-sm text-slate-500">{responseCount} response(s)</p>
                 <p className="mt-2 text-xs text-slate-400">
-                  Last modified {new Date(template.updatedAt).toLocaleString()}
+                  Last modified {formatDateTime(template.updatedAt)}
                 </p>
-              </button>
+                <div className="mt-3 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigate(`/fill/${template.id}`)
+                    }}
+                    className="rounded border border-slate-300 px-2 py-1 text-xs font-medium hover:bg-slate-50"
+                  >
+                    New Response
+                  </button>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      navigate(`/template/${template.id}/responses`)
+                    }}
+                    className="rounded border border-slate-300 px-2 py-1 text-xs font-medium hover:bg-slate-50"
+                  >
+                    View Responses
+                  </button>
+                </div>
+              </div>
             )
           })}
         </div>

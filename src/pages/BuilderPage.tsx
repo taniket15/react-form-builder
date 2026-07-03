@@ -63,6 +63,17 @@ export function BuilderPage() {
           value={draft.title}
           onChange={(e) => dispatch({ type: 'SET_TITLE', title: e.target.value })}
         />
+        {/* Only shown once the template has been saved at least once — a /builder/new
+            draft has no id to link to yet. */}
+        {!isNew && (
+          <button
+            type="button"
+            onClick={() => navigate(`/template/${draft.id}/responses`)}
+            className="text-sm text-blue-600 hover:underline"
+          >
+            View Responses
+          </button>
+        )}
         <button
           type="button"
           onClick={handleSave}

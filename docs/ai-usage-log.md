@@ -56,9 +56,9 @@ const visible = matchedEffects.includes('hide') ? false
 
 ---
 
-### 4. `FormInstance.templateSnapshot` — partial snapshot rejected in favor of full clone
+### 4. `FormResponse.templateSnapshot` — partial snapshot rejected in favor of full clone
 
-**Prompt:** How should a submitted `FormInstance` handle the fact that its parent `FormTemplate` can keep changing after submission (fields renamed, added, removed)?
+**Prompt:** How should a submitted `FormResponse` handle the fact that its parent `FormTemplate` can keep changing after submission (fields renamed, added, removed)?
 
 **AI output (first pass):** Proposed `templateSnapshot: { title: string; fields: FormField[] }` — a hand-picked subset of the template, just enough to re-render a submission.
 

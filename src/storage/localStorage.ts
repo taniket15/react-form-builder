@@ -1,8 +1,8 @@
-import type { FormInstance, FormTemplate } from '../types'
+import type { FormResponse, FormTemplate } from '../types'
 
 const KEYS = {
   templates: 'formbuilder:v1:templates',
-  instances: 'formbuilder:v1:instances',
+  responses: 'formbuilder:v1:responses',
   schemaVersion: 'formbuilder:v1:schemaVersion',
 } as const
 
@@ -36,10 +36,10 @@ export function saveTemplates(templates: FormTemplate[]): void {
   writeJSON(KEYS.templates, templates)
 }
 
-export function loadInstances(): FormInstance[] {
-  return readJSON<FormInstance[]>(KEYS.instances, [])
+export function loadResponses(): FormResponse[] {
+  return readJSON<FormResponse[]>(KEYS.responses, [])
 }
 
-export function saveInstances(instances: FormInstance[]): void {
-  writeJSON(KEYS.instances, instances)
+export function saveResponses(responses: FormResponse[]): void {
+  writeJSON(KEYS.responses, responses)
 }
