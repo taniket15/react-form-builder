@@ -1,5 +1,7 @@
-import type { ChangeEvent } from 'react'
+import { useId, type ChangeEvent } from 'react'
 import type { FileMeta, FileUploadConfig } from '../types'
+import { TextField } from '../components/common/TextField'
+import { Checkbox } from '../components/common/Checkbox'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -46,50 +48,39 @@ function createDefaultConfig(): FileUploadConfig {
 function ConfigPanel({ config, onChange }: FieldConfigPanelProps<FileUploadConfig>) {
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-slate-700">
-        Label
-        <input
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.label}
-          onChange={(e) => onChange({ ...config, label: e.target.value })}
-        />
-      </label>
-      <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-        <input
-          type="checkbox"
-          checked={config.required}
-          onChange={(e) => onChange({ ...config, required: e.target.checked })}
-        />
-        Required
-      </label>
-      <label className="block text-sm font-medium text-slate-700">
-        Allowed file types (comma-separated, e.g. .pdf,.jpg,.png)
-        <input
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.allowedTypes ?? ''}
-          onChange={(e) => onChange({ ...config, allowedTypes: e.target.value })}
-        />
-      </label>
-      <label className="block text-sm font-medium text-slate-700">
-        Max number of files
-        <input
-          type="number"
-          min={1}
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.maxFiles ?? ''}
-          onChange={(e) =>
-            onChange({
-              ...config,
-              maxFiles: e.target.value === '' ? undefined : Number(e.target.value),
-            })
-          }
-        />
-      </label>
+      <TextField
+        label="Label"
+        value={config.label}
+        onChange={(e) => onChange({ ...config, label: e.target.value })}
+      />
+      <Checkbox
+        label="Required"
+        checked={config.required}
+        onChange={(e) => onChange({ ...config, required: e.target.checked })}
+      />
+      <TextField
+        label="Allowed file types (comma-separated, e.g. .pdf,.jpg,.png)"
+        value={config.allowedTypes ?? ''}
+        onChange={(e) => onChange({ ...config, allowedTypes: e.target.value })}
+      />
+      <TextField
+        label="Max number of files"
+        type="number"
+        min={1}
+        value={config.maxFiles ?? ''}
+        onChange={(e) =>
+          onChange({
+            ...config,
+            maxFiles: e.target.value === '' ? undefined : Number(e.target.value),
+          })
+        }
+      />
     </div>
   )
 }
 
 function FillField({ config, value, onChange, error }: FieldFillProps<FileUploadConfig, Value>) {
+  const inputId = useId()
   const allowedExtensions = parseAllowedExtensions(config.allowedTypes)
 
   function handleFileInput(e: ChangeEvent<HTMLInputElement>) {
@@ -110,16 +101,18 @@ function FillField({ config, value, onChange, error }: FieldFillProps<FileUpload
 
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
         {config.label}
         {config.required && <span className="text-red-500"> *</span>}
       </label>
       <input
+        id={inputId}
         type="file"
         multiple={config.maxFiles === undefined || config.maxFiles > 1}
         accept={config.allowedTypes}
         onChange={handleFileInput}
         className="mt-1 block text-sm"
+        aria-invalid={!!error}
       />
       {value.length > 0 && (
         <ul className="mt-2 space-y-1">

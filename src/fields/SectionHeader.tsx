@@ -1,5 +1,6 @@
 import type { SectionHeaderConfig } from '../types'
 import { escapeHtml } from '../utils/escapeHtml'
+import { TextField } from '../components/common/TextField'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -40,14 +41,11 @@ function createDefaultConfig(): SectionHeaderConfig {
 function ConfigPanel({ config, onChange }: FieldConfigPanelProps<SectionHeaderConfig>) {
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-slate-700">
-        Label
-        <input
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.label}
-          onChange={(e) => onChange({ ...config, label: e.target.value })}
-        />
-      </label>
+      <TextField
+        label="Label"
+        value={config.label}
+        onChange={(e) => onChange({ ...config, label: e.target.value })}
+      />
       <label className="block text-sm font-medium text-slate-700">
         Size
         <select

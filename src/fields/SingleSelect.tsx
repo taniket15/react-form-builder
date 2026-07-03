@@ -1,6 +1,8 @@
 import { useId } from 'react'
 import type { SingleSelectConfig } from '../types'
 import { OptionsEditor } from '../components/builder/OptionsEditor'
+import { TextField } from '../components/common/TextField'
+import { Checkbox } from '../components/common/Checkbox'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -29,22 +31,16 @@ function createDefaultConfig(): SingleSelectConfig {
 function ConfigPanel({ config, onChange }: FieldConfigPanelProps<SingleSelectConfig>) {
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-slate-700">
-        Label
-        <input
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.label}
-          onChange={(e) => onChange({ ...config, label: e.target.value })}
-        />
-      </label>
-      <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-        <input
-          type="checkbox"
-          checked={config.required}
-          onChange={(e) => onChange({ ...config, required: e.target.checked })}
-        />
-        Required
-      </label>
+      <TextField
+        label="Label"
+        value={config.label}
+        onChange={(e) => onChange({ ...config, label: e.target.value })}
+      />
+      <Checkbox
+        label="Required"
+        checked={config.required}
+        onChange={(e) => onChange({ ...config, required: e.target.checked })}
+      />
       <label className="block text-sm font-medium text-slate-700">
         Display type
         <select
@@ -79,6 +75,7 @@ function FillField({ config, value, onChange, error }: FieldFillProps<SingleSele
             className="block w-full rounded border border-slate-300 px-2 py-1"
             value={value}
             onChange={(e) => onChange(e.target.value)}
+            aria-invalid={!!error}
           >
             <option value="">Select…</option>
             {config.options.map((opt) => (

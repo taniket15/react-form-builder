@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTemplates } from '../context/TemplatesContext'
 import { useResponses } from '../context/ResponsesContext'
 import { formatDateTime } from '../utils/formatDateTime'
+import { Button } from '../components/common/Button'
 
 export function TemplatesListPage() {
   const navigate = useNavigate()
@@ -12,17 +13,13 @@ export function TemplatesListPage() {
     <div className="mx-auto max-w-4xl p-8">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Templates</h1>
-        <button
-          type="button"
-          onClick={() => navigate('/builder/new')}
-          className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-        >
+        <Button variant="primary" onClick={() => navigate('/builder/new')}>
           New Template
-        </button>
+        </Button>
       </div>
 
       {templates.length === 0 ? (
-        <p className="text-slate-500">No templates yet.</p>
+        <p className="text-slate-500">No templates yet. Click "New Template" to build your first form.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {templates.map((template) => {
@@ -47,26 +44,22 @@ export function TemplatesListPage() {
                   Last modified {formatDateTime(template.updatedAt)}
                 </p>
                 <div className="mt-3 flex gap-2">
-                  <button
-                    type="button"
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation()
                       navigate(`/fill/${template.id}`)
                     }}
-                    className="rounded border border-slate-300 px-2 py-1 text-xs font-medium hover:bg-slate-50"
                   >
                     New Response
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
                     onClick={(e) => {
                       e.stopPropagation()
                       navigate(`/template/${template.id}/responses`)
                     }}
-                    className="rounded border border-slate-300 px-2 py-1 text-xs font-medium hover:bg-slate-50"
                   >
                     View Responses
-                  </button>
+                  </Button>
                 </div>
               </div>
             )

@@ -5,6 +5,7 @@ import { useResponses } from '../context/ResponsesContext'
 import { getFieldDefinition } from '../fields/registry'
 import { FormRenderer } from '../components/fill/FormRenderer'
 import { computeVisibleEntries, validateEntries } from '../engine/visibility'
+import { Button } from '../components/common/Button'
 import type { FormResponse, FormValues } from '../types'
 
 export function FillPage() {
@@ -77,13 +78,9 @@ export function FillPage() {
     <div className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-2xl font-semibold">{template.title}</h1>
       <FormRenderer fields={template.fields} values={values} onChange={handleChange} errors={errors} />
-      <button
-        type="button"
-        onClick={handleSubmit}
-        className="mt-4 rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-      >
+      <Button variant="primary" onClick={handleSubmit} className="mt-4">
         Submit
-      </button>
+      </Button>
     </div>
   )
 }

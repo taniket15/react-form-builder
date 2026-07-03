@@ -1,4 +1,7 @@
+import { useId } from 'react'
 import type { NumberConfig, RangeValue } from '../types'
+import { TextField } from '../components/common/TextField'
+import { Checkbox } from '../components/common/Checkbox'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -46,88 +49,68 @@ function createDefaultConfig(): NumberConfig {
 function ConfigPanel({ config, onChange }: FieldConfigPanelProps<NumberConfig>) {
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-slate-700">
-        Label
-        <input
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.label}
-          onChange={(e) => onChange({ ...config, label: e.target.value })}
-        />
-      </label>
-      <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-        <input
-          type="checkbox"
-          checked={config.required}
-          onChange={(e) => onChange({ ...config, required: e.target.checked })}
-        />
-        Required
-      </label>
+      <TextField
+        label="Label"
+        value={config.label}
+        onChange={(e) => onChange({ ...config, label: e.target.value })}
+      />
+      <Checkbox
+        label="Required"
+        checked={config.required}
+        onChange={(e) => onChange({ ...config, required: e.target.checked })}
+      />
       <div className="grid grid-cols-2 gap-3">
-        <label className="block text-sm font-medium text-slate-700">
-          Min value
-          <input
-            type="number"
-            className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-            value={config.min ?? ''}
-            onChange={(e) =>
-              onChange({ ...config, min: e.target.value === '' ? undefined : Number(e.target.value) })
-            }
-          />
-        </label>
-        <label className="block text-sm font-medium text-slate-700">
-          Max value
-          <input
-            type="number"
-            className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-            value={config.max ?? ''}
-            onChange={(e) =>
-              onChange({ ...config, max: e.target.value === '' ? undefined : Number(e.target.value) })
-            }
-          />
-        </label>
-      </div>
-      <label className="block text-sm font-medium text-slate-700">
-        Decimal places (0–4)
-        <input
+        <TextField
+          label="Min value"
           type="number"
-          min={0}
-          max={4}
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.decimalPlaces}
+          value={config.min ?? ''}
           onChange={(e) =>
-            onChange({
-              ...config,
-              decimalPlaces: Math.min(4, Math.max(0, Number(e.target.value) || 0)),
-            })
+            onChange({ ...config, min: e.target.value === '' ? undefined : Number(e.target.value) })
           }
         />
-      </label>
+        <TextField
+          label="Max value"
+          type="number"
+          value={config.max ?? ''}
+          onChange={(e) =>
+            onChange({ ...config, max: e.target.value === '' ? undefined : Number(e.target.value) })
+          }
+        />
+      </div>
+      <TextField
+        label="Decimal places (0–4)"
+        type="number"
+        min={0}
+        max={4}
+        value={config.decimalPlaces}
+        onChange={(e) =>
+          onChange({
+            ...config,
+            decimalPlaces: Math.min(4, Math.max(0, Number(e.target.value) || 0)),
+          })
+        }
+      />
       <div className="grid grid-cols-2 gap-3">
-        <label className="block text-sm font-medium text-slate-700">
-          Prefix
-          <input
-            className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-            value={config.prefix ?? ''}
-            onChange={(e) => onChange({ ...config, prefix: e.target.value })}
-          />
-        </label>
-        <label className="block text-sm font-medium text-slate-700">
-          Suffix
-          <input
-            className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-            value={config.suffix ?? ''}
-            onChange={(e) => onChange({ ...config, suffix: e.target.value })}
-          />
-        </label>
+        <TextField
+          label="Prefix"
+          value={config.prefix ?? ''}
+          onChange={(e) => onChange({ ...config, prefix: e.target.value })}
+        />
+        <TextField
+          label="Suffix"
+          value={config.suffix ?? ''}
+          onChange={(e) => onChange({ ...config, suffix: e.target.value })}
+        />
       </div>
     </div>
   )
 }
 
 function FillField({ config, value, onChange, error }: FieldFillProps<NumberConfig, Value>) {
+  const inputId = useId()
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
         {config.label}
         {config.required && <span className="text-red-500"> *</span>}
       </label>
@@ -138,6 +121,7 @@ function FillField({ config, value, onChange, error }: FieldFillProps<NumberConf
           </span>
         )}
         <input
+          id={inputId}
           type="text"
           inputMode="decimal"
           className={`block w-full border border-slate-300 px-2 py-1 ${config.prefix ? '' : 'rounded-l'} ${
@@ -145,6 +129,7 @@ function FillField({ config, value, onChange, error }: FieldFillProps<NumberConf
           }`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          aria-invalid={!!error}
         />
         {config.suffix && (
           <span className="flex items-center rounded-r border border-l-0 border-slate-300 bg-slate-50 px-2 text-sm text-slate-500">

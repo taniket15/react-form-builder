@@ -1,4 +1,6 @@
+import { useId } from 'react'
 import type { CalculationConfig } from '../types'
+import { TextField } from '../components/common/TextField'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -36,14 +38,11 @@ function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<Calculatio
 
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-slate-700">
-        Label
-        <input
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.label}
-          onChange={(e) => onChange({ ...config, label: e.target.value })}
-        />
-      </label>
+      <TextField
+        label="Label"
+        value={config.label}
+        onChange={(e) => onChange({ ...config, label: e.target.value })}
+      />
       <label className="block text-sm font-medium text-slate-700">
         Aggregation
         <select
@@ -59,22 +58,19 @@ function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<Calculatio
           <option value="max">Maximum</option>
         </select>
       </label>
-      <label className="block text-sm font-medium text-slate-700">
-        Decimal places
-        <input
-          type="number"
-          min={0}
-          max={4}
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.decimalPlaces}
-          onChange={(e) =>
-            onChange({
-              ...config,
-              decimalPlaces: Math.min(4, Math.max(0, Number(e.target.value) || 0)),
-            })
-          }
-        />
-      </label>
+      <TextField
+        label="Decimal places"
+        type="number"
+        min={0}
+        max={4}
+        value={config.decimalPlaces}
+        onChange={(e) =>
+          onChange({
+            ...config,
+            decimalPlaces: Math.min(4, Math.max(0, Number(e.target.value) || 0)),
+          })
+        }
+      />
       <div>
         <span className="block text-sm font-medium text-slate-700">Source fields (Number only)</span>
         {numberFields.length === 0 ? (
@@ -99,10 +95,14 @@ function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<Calculatio
 }
 
 function FillField({ config, value }: FieldFillProps<CalculationConfig, Value>) {
+  const inputId = useId()
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700">{config.label}</label>
+      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
+        {config.label}
+      </label>
       <input
+        id={inputId}
         type="text"
         readOnly
         disabled

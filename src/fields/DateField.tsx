@@ -1,4 +1,7 @@
+import { useId } from 'react'
 import type { DateConfig } from '../types'
+import { TextField } from '../components/common/TextField'
+import { Checkbox } from '../components/common/Checkbox'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -30,68 +33,56 @@ function createDefaultConfig(): DateConfig {
 function ConfigPanel({ config, onChange }: FieldConfigPanelProps<DateConfig>) {
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-slate-700">
-        Label
-        <input
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.label}
-          onChange={(e) => onChange({ ...config, label: e.target.value })}
-        />
-      </label>
-      <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-        <input
-          type="checkbox"
-          checked={config.required}
-          onChange={(e) => onChange({ ...config, required: e.target.checked })}
-        />
-        Required
-      </label>
-      <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-        <input
-          type="checkbox"
-          checked={config.prefillToday}
-          onChange={(e) => onChange({ ...config, prefillToday: e.target.checked })}
-        />
-        Pre-fill with today's date
-      </label>
+      <TextField
+        label="Label"
+        value={config.label}
+        onChange={(e) => onChange({ ...config, label: e.target.value })}
+      />
+      <Checkbox
+        label="Required"
+        checked={config.required}
+        onChange={(e) => onChange({ ...config, required: e.target.checked })}
+      />
+      <Checkbox
+        label="Pre-fill with today's date"
+        checked={config.prefillToday}
+        onChange={(e) => onChange({ ...config, prefillToday: e.target.checked })}
+      />
       <div className="grid grid-cols-2 gap-3">
-        <label className="block text-sm font-medium text-slate-700">
-          Min date
-          <input
-            type="date"
-            className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-            value={config.minDate ?? ''}
-            onChange={(e) => onChange({ ...config, minDate: e.target.value || undefined })}
-          />
-        </label>
-        <label className="block text-sm font-medium text-slate-700">
-          Max date
-          <input
-            type="date"
-            className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-            value={config.maxDate ?? ''}
-            onChange={(e) => onChange({ ...config, maxDate: e.target.value || undefined })}
-          />
-        </label>
+        <TextField
+          label="Min date"
+          type="date"
+          value={config.minDate ?? ''}
+          onChange={(e) => onChange({ ...config, minDate: e.target.value || undefined })}
+        />
+        <TextField
+          label="Max date"
+          type="date"
+          value={config.maxDate ?? ''}
+          onChange={(e) => onChange({ ...config, maxDate: e.target.value || undefined })}
+        />
       </div>
     </div>
   )
 }
 
 function FillField({ config, value, onChange, error }: FieldFillProps<DateConfig, Value>) {
+  const inputId = useId()
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
         {config.label}
         {config.required && <span className="text-red-500"> *</span>}
       </label>
       <input
+        id={inputId}
         type="date"
         className="mt-1 block rounded border border-slate-300 px-2 py-1"
         min={config.minDate}
         max={config.maxDate}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        aria-invalid={!!error}
       />
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </div>

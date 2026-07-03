@@ -4,6 +4,7 @@ import { useTemplates } from '../context/TemplatesContext'
 import { useResponses } from '../context/ResponsesContext'
 import { formatDateTime } from '../utils/formatDateTime'
 import { exportResponseToPdf } from '../pdf/exportPdf'
+import { Button } from '../components/common/Button'
 
 export function ResponsesPage() {
   const { templateId } = useParams()
@@ -44,7 +45,9 @@ export function ResponsesPage() {
       <p className="mb-4 text-sm text-slate-500">{templateResponses.length} response(s)</p>
 
       {templateResponses.length === 0 ? (
-        <p className="text-slate-500">No responses yet.</p>
+        <p className="text-slate-500">
+          No responses yet. Use "New Response" from the templates list to fill this form out.
+        </p>
       ) : (
         <ul className="space-y-2">
           {templateResponses.map((response) => (
@@ -53,13 +56,7 @@ export function ResponsesPage() {
               className="flex items-center justify-between rounded border border-slate-200 p-3"
             >
               <span className="text-sm">{formatDateTime(response.submittedAt)}</span>
-              <button
-                type="button"
-                onClick={() => exportResponseToPdf(response)}
-                className="rounded border border-slate-300 px-2 py-1 text-xs font-medium hover:bg-slate-50"
-              >
-                Download PDF
-              </button>
+              <Button onClick={() => exportResponseToPdf(response)}>Download PDF</Button>
             </li>
           ))}
         </ul>

@@ -7,6 +7,8 @@ import { FieldPalette } from '../components/builder/FieldPalette'
 import { Canvas } from '../components/builder/Canvas'
 import { DefaultVisibilityToggle } from '../components/builder/DefaultVisibilityToggle'
 import { ConditionsEditor } from '../components/builder/ConditionsEditor'
+import { PreviewModal } from '../components/builder/PreviewModal'
+import { Button } from '../components/common/Button'
 import type { FieldType, FormField } from '../types'
 
 export function BuilderPage() {
@@ -24,6 +26,7 @@ export function BuilderPage() {
     existingTemplate ? structuredClone(existingTemplate) : createBlankTemplate(),
   )
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
 
   useEffect(() => {
     if (!isNew && existingTemplate === undefined) {
@@ -74,13 +77,10 @@ export function BuilderPage() {
             View Responses
           </button>
         )}
-        <button
-          type="button"
-          onClick={handleSave}
-          className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
-        >
+        <Button onClick={() => setPreviewOpen(true)}>Preview</Button>
+        <Button variant="primary" onClick={handleSave}>
           Save
-        </button>
+        </Button>
       </header>
       <div className="flex flex-1 overflow-hidden">
         <FieldPalette onAddField={handleAddField} />
@@ -106,6 +106,7 @@ export function BuilderPage() {
           )}
         </div>
       </div>
+      {previewOpen && <PreviewModal template={draft} onClose={() => setPreviewOpen(false)} />}
     </div>
   )
 }

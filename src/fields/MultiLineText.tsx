@@ -1,4 +1,7 @@
+import { useId } from 'react'
 import type { MultiLineTextConfig } from '../types'
+import { TextField } from '../components/common/TextField'
+import { Checkbox } from '../components/common/Checkbox'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -20,87 +23,72 @@ function createDefaultConfig(): MultiLineTextConfig {
 function ConfigPanel({ config, onChange }: FieldConfigPanelProps<MultiLineTextConfig>) {
   return (
     <div className="space-y-3">
-      <label className="block text-sm font-medium text-slate-700">
-        Label
-        <input
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.label}
-          onChange={(e) => onChange({ ...config, label: e.target.value })}
-        />
-      </label>
-      <label className="block text-sm font-medium text-slate-700">
-        Placeholder
-        <input
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.placeholder ?? ''}
-          onChange={(e) => onChange({ ...config, placeholder: e.target.value })}
-        />
-      </label>
-      <label className="flex items-center gap-2 text-sm font-medium text-slate-700">
-        <input
-          type="checkbox"
-          checked={config.required}
-          onChange={(e) => onChange({ ...config, required: e.target.checked })}
-        />
-        Required
-      </label>
+      <TextField
+        label="Label"
+        value={config.label}
+        onChange={(e) => onChange({ ...config, label: e.target.value })}
+      />
+      <TextField
+        label="Placeholder"
+        value={config.placeholder ?? ''}
+        onChange={(e) => onChange({ ...config, placeholder: e.target.value })}
+      />
+      <Checkbox
+        label="Required"
+        checked={config.required}
+        onChange={(e) => onChange({ ...config, required: e.target.checked })}
+      />
       <div className="grid grid-cols-2 gap-3">
-        <label className="block text-sm font-medium text-slate-700">
-          Min length
-          <input
-            type="number"
-            className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-            value={config.minLength ?? ''}
-            onChange={(e) =>
-              onChange({
-                ...config,
-                minLength: e.target.value === '' ? undefined : Number(e.target.value),
-              })
-            }
-          />
-        </label>
-        <label className="block text-sm font-medium text-slate-700">
-          Max length
-          <input
-            type="number"
-            className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-            value={config.maxLength ?? ''}
-            onChange={(e) =>
-              onChange({
-                ...config,
-                maxLength: e.target.value === '' ? undefined : Number(e.target.value),
-              })
-            }
-          />
-        </label>
-      </div>
-      <label className="block text-sm font-medium text-slate-700">
-        Visible rows
-        <input
+        <TextField
+          label="Min length"
           type="number"
-          min={1}
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
-          value={config.rows}
-          onChange={(e) => onChange({ ...config, rows: Math.max(1, Number(e.target.value) || 1) })}
+          value={config.minLength ?? ''}
+          onChange={(e) =>
+            onChange({
+              ...config,
+              minLength: e.target.value === '' ? undefined : Number(e.target.value),
+            })
+          }
         />
-      </label>
+        <TextField
+          label="Max length"
+          type="number"
+          value={config.maxLength ?? ''}
+          onChange={(e) =>
+            onChange({
+              ...config,
+              maxLength: e.target.value === '' ? undefined : Number(e.target.value),
+            })
+          }
+        />
+      </div>
+      <TextField
+        label="Visible rows"
+        type="number"
+        min={1}
+        value={config.rows}
+        onChange={(e) => onChange({ ...config, rows: Math.max(1, Number(e.target.value) || 1) })}
+      />
     </div>
   )
 }
 
 function FillField({ config, value, onChange, error }: FieldFillProps<MultiLineTextConfig, Value>) {
+  const inputId = useId()
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
         {config.label}
         {config.required && <span className="text-red-500"> *</span>}
       </label>
       <textarea
+        id={inputId}
         className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
         rows={config.rows}
         placeholder={config.placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        aria-invalid={!!error}
       />
       {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
     </div>
