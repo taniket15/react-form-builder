@@ -26,4 +26,14 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'error',
     },
   },
+  {
+    // Field modules intentionally export a `definition` object bundling local
+    // ConfigPanel/FillField components with metadata — not a fast-refresh concern,
+    // it's the registry pattern itself. Same reasoning for context files, which
+    // co-locate a Provider component with its `useX` hook by design.
+    files: ['src/fields/**/*.{ts,tsx}', 'src/context/**/*.{ts,tsx}'],
+    rules: {
+      'react-refresh/only-export-components': 'off',
+    },
+  },
 )

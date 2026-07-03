@@ -1,4 +1,5 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import './fields'
 import { TemplatesProvider } from './context/TemplatesContext'
 import { InstancesProvider } from './context/InstancesContext'
 import { TemplatesListPage } from './pages/TemplatesListPage'
