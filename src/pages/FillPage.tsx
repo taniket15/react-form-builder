@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTemplates } from '../context/TemplatesContext'
 import { getFieldDefinition } from '../fields/registry'
+import { FormRenderer } from '../components/fill/FormRenderer'
 import type { FormValues } from '../types'
 
 export function FillPage() {
@@ -35,20 +36,11 @@ export function FillPage() {
   return (
     <div className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-2xl font-semibold">{template.title}</h1>
-      <div className="space-y-4">
-        {template.fields.map((field) => {
-          const definition = getFieldDefinition(field.config.type)
-          const FillField = definition.FillField
-          return (
-            <FillField
-              key={field.id}
-              config={field.config}
-              value={values[field.id]}
-              onChange={(value) => setValues((prev) => ({ ...prev, [field.id]: value }))}
-            />
-          )
-        })}
-      </div>
+      <FormRenderer
+        fields={template.fields}
+        values={values}
+        onChange={(fieldId, value) => setValues((prev) => ({ ...prev, [fieldId]: value }))}
+      />
     </div>
   )
 }

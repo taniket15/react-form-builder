@@ -5,6 +5,8 @@ import { builderReducer, createBlankTemplate } from '../builder/builderReducer'
 import { getFieldDefinition } from '../fields/registry'
 import { FieldPalette } from '../components/builder/FieldPalette'
 import { Canvas } from '../components/builder/Canvas'
+import { DefaultVisibilityToggle } from '../components/builder/DefaultVisibilityToggle'
+import { ConditionsEditor } from '../components/builder/ConditionsEditor'
 import type { FieldType, FormField } from '../types'
 
 export function BuilderPage() {
@@ -85,6 +87,7 @@ export function BuilderPage() {
           {selectedField ? (
             <ConfigPanelHost
               field={selectedField}
+              allFields={draft.fields}
               onChange={(field) => dispatch({ type: 'UPDATE_FIELD', field })}
             />
           ) : (
@@ -98,12 +101,27 @@ export function BuilderPage() {
 
 function ConfigPanelHost({
   field,
+  allFields,
   onChange,
 }: {
   field: FormField
+  allFields: FormField[]
   onChange: (field: FormField) => void
 }) {
   const definition = getFieldDefinition(field.config.type)
   const ConfigPanel = definition.ConfigPanel
-  return <ConfigPanel config={field.config} onChange={(config) => onChange({ ...field, config })} />
+  return (
+    <div className="space-y-4">
+      <ConfigPanel config={field.config} onChange={(config) => onChange({ ...field, config })} />
+      <DefaultVisibilityToggle
+        defaultVisible={field.defaultVisible}
+        onChange={(defaultVisible) => onChange({ ...field, defaultVisible })}
+      />
+      <ConditionsEditor
+        field={field}
+        allFields={allFields}
+        onChange={(conditions) => onChange({ ...field, conditions })}
+      />
+    </div>
+  )
 }
