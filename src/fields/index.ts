@@ -1,5 +1,10 @@
 import './SingleLineText'
+import './MultiLineText'
 import './NumberField'
+import './DateField'
+import './SingleSelect'
+import './MultiSelect'
+import './FileUpload'
 import './SectionHeader'
 
 export * from './registry'
