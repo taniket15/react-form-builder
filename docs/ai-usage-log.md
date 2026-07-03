@@ -90,4 +90,16 @@ const visible = matchedEffects.includes('hide') ? false
 
 **What was verified:** Re-extracted the actual requirements doc text fresh and grepped every PDF/download/instance mention end to end, rather than trusting the earlier read. Confirmed separately that no bulk/combined-download requirement exists anywhere — only "Each entry: submission timestamp, and a Re-download PDF button" (singular, per response).
 
-**Rejected and changed:** Removed the pre-submit Fill-page Download PDF button and the `exportFillStateToPdf` function entirely. Submit is now the Fill page's only action, redirecting straight to the Responses list, where the single real PDF-export entry point (`exportResponseToPdf`) is immediately available with a genuine `submittedAt`. This only surfaced because a second read against the source document was requested before more work got built on top of the first version — it wasn't caught by any test or by re-reading the code in isolation.
+**Rejected and changed:** Removed the pre-submit Fill-page Download PDF button and the `exportFillStateToPdf` function entirely. Submit was made the Fill page's only action, redirecting straight to the Responses list, where the single real PDF-export entry point (`exportResponseToPdf`) is immediately available with a genuine `submittedAt`. This only surfaced because a second read against the source document was requested before more work got built on top of the first version — it wasn't caught by any test or by re-reading the code in isolation.
+
+---
+
+### 7. Fill-page Download PDF, reconsidered again — disabled-until-submit instead of removed entirely
+
+**Prompt:** After entry #6 removed Fill Mode's Download PDF button entirely, asked to add it back on the Fill page — but keep it disabled until the user has actually submitted.
+
+**What happened:** This is a genuine design refinement, not a correction of an AI mistake — entry #6's "remove it entirely" was one valid resolution of the tension between "Download PDF is a Fill Mode action" (per spec) and "the exported PDF needs a genuine submission timestamp." Disabling the button until submit resolves the same tension without dropping the feature: Submit now creates the `FormResponse` and keeps the user on the Fill page (no more auto-redirect to Responses) instead of navigating away immediately, so the newly-enabled button has a real, just-created response to export.
+
+**What was verified:** Confirmed the re-enabled button calls the exact same `exportResponseToPdf` function the Responses list uses for re-download — still one PDF-export code path in the app, just two places that can trigger it once a genuine `FormResponse` exists.
+
+**Changed:** Submit no longer redirects to `/responses`; Fill shows a "Submitted ✓" state instead, with Download PDF now enabled. A follow-up request removed a "View Responses" link that had briefly been added alongside it, keeping the Fill page focused on the fill/submit/download loop — Responses stays reachable only from the template card and the Builder header.
