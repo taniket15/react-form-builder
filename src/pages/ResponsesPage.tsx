@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTemplates } from '../context/TemplatesContext'
 import { useResponses } from '../context/ResponsesContext'
 import { formatDateTime } from '../utils/formatDateTime'
+import { exportResponseToPdf } from '../pdf/exportPdf'
 
 export function ResponsesPage() {
   const { templateId } = useParams()
@@ -52,12 +53,10 @@ export function ResponsesPage() {
               className="flex items-center justify-between rounded border border-slate-200 p-3"
             >
               <span className="text-sm">{formatDateTime(response.submittedAt)}</span>
-              {/* Wired to a real export in the next step (browser-native PDF). */}
               <button
                 type="button"
-                disabled
-                title="PDF export lands in the next step"
-                className="cursor-not-allowed rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-400"
+                onClick={() => exportResponseToPdf(response)}
+                className="rounded border border-slate-300 px-2 py-1 text-xs font-medium hover:bg-slate-50"
               >
                 Download PDF
               </button>

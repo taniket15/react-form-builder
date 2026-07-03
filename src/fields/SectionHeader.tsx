@@ -1,4 +1,5 @@
 import type { SectionHeaderConfig } from '../types'
+import { escapeHtml } from '../utils/escapeHtml'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -7,7 +8,8 @@ import {
 } from './registry'
 
 // No value at all — required is always false (no toggle in the ConfigPanel below),
-// and it's the only field type without formatForDisplay (renderForPdf lands in Step 8).
+// and it's the only field type without formatForDisplay: it defines renderForPdf
+// instead, since a section header is a structural heading, not a label/value row.
 type Value = null
 
 const SIZE_CLASSES: Record<SectionHeaderConfig['size'], string> = {
@@ -16,6 +18,14 @@ const SIZE_CLASSES: Record<SectionHeaderConfig['size'], string> = {
   md: 'text-lg font-semibold text-slate-900',
   lg: 'text-xl font-semibold text-slate-900',
   xl: 'text-2xl font-bold text-slate-900',
+}
+
+const PDF_HEADING_TAG: Record<SectionHeaderConfig['size'], string> = {
+  xs: 'h5',
+  sm: 'h4',
+  md: 'h3',
+  lg: 'h2',
+  xl: 'h1',
 }
 
 function createDefaultConfig(): SectionHeaderConfig {
@@ -75,6 +85,10 @@ export const sectionHeaderDefinition: FieldDefinition<SectionHeaderConfig, Value
   FillField,
   getInitialValue: () => null,
   validate,
+  renderForPdf: (config) => {
+    const tag = PDF_HEADING_TAG[config.size]
+    return `<${tag} class="pdf-section-header pdf-section-header--${config.size}">${escapeHtml(config.label)}</${tag}>`
+  },
 }
 
 registerField(sectionHeaderDefinition)

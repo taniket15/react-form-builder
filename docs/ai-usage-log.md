@@ -77,3 +77,17 @@ const visible = matchedEffects.includes('hide') ? false
 **What was verified:** Worked through what happens if every keystroke in the config panel dispatches through the shared context: either every action persists immediately (making the spec's explicit Save button meaningless), or the in-memory `templates` array reflects unsaved edits everywhere it's read — e.g. a `TemplatesList` card's field count would appear to update live from an in-progress, unsaved Builder session, then silently revert on refresh once storage reloads the last-saved version. Confirmed this was a real bug path, not a style preference.
 
 **Rejected and changed:** Split into a thin `TemplatesContext` (collection CRUD only: `createTemplate`/`updateTemplate`/`deleteTemplate`) plus a local `builderReducer` draft that Builder edits in memory and commits only on Save. Also added `/builder/new` (a blank draft not persisted until first Save) to avoid "New Template" clicks creating ghost entries. Added an explicit manual-verification step ("edit a field, navigate away without saving, confirm the edit is gone") to the implementation checklist specifically to catch a regression here.
+
+---
+
+## Implementation phase
+
+### 6. Fill-page "Download PDF" — plausible-but-incorrect: built pre-submit live download, then rejected
+
+**Prompt:** Before building further on top of it, asked to re-check the actual requirements doc (not memory) on two specific points: does Fill Mode need its own "Download PDF" separate from Submit, and do responses need a combined/bulk download option.
+
+**What happened (the plausible-but-incorrect part):** The Step 8 implementation already in place had a `Download PDF` button on the Fill page that worked *before* Submit — exporting the current in-progress values with `new Date().toISOString()` standing in for a submission timestamp, since nothing had actually been submitted yet. This was a reasonable-looking reading of the spec's Fill Mode bullet list, which lists "Submit" and "Download PDF" as sibling actions one after another. But it directly conflicts with a separate part of the same spec: "The exported PDF must include: ... Submission timestamp." A PDF generated before Submit has no genuine submission event to timestamp — the code was internally consistent and looked done, but was quietly wrong against a requirement stated elsewhere in the doc.
+
+**What was verified:** Re-extracted the actual requirements doc text fresh and grepped every PDF/download/instance mention end to end, rather than trusting the earlier read. Confirmed separately that no bulk/combined-download requirement exists anywhere — only "Each entry: submission timestamp, and a Re-download PDF button" (singular, per response).
+
+**Rejected and changed:** Removed the pre-submit Fill-page Download PDF button and the `exportFillStateToPdf` function entirely. Submit is now the Fill page's only action, redirecting straight to the Responses list, where the single real PDF-export entry point (`exportResponseToPdf`) is immediately available with a genuine `submittedAt`. This only surfaced because a second read against the source document was requested before more work got built on top of the first version — it wasn't caught by any test or by re-reading the code in isolation.
