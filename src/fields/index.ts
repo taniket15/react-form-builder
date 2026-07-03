@@ -6,5 +6,6 @@ import './SingleSelect'
 import './MultiSelect'
 import './FileUpload'
 import './SectionHeader'
+import './Calculation'
 
 export * from './registry'

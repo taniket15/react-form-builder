@@ -112,7 +112,11 @@ function ConfigPanelHost({
   const ConfigPanel = definition.ConfigPanel
   return (
     <div className="space-y-4">
-      <ConfigPanel config={field.config} onChange={(config) => onChange({ ...field, config })} />
+      <ConfigPanel
+        config={field.config}
+        onChange={(config) => onChange({ ...field, config })}
+        ctx={{ allFields }}
+      />
       <DefaultVisibilityToggle
         defaultVisible={field.defaultVisible}
         onChange={(defaultVisible) => onChange({ ...field, defaultVisible })}

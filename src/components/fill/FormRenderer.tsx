@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import type { FormField, FormValues } from '../../types'
 import { getFieldDefinition } from '../../fields/registry'
 import { resolveFieldStates } from '../../engine/conditions'
+import { resolveFormValues } from '../../engine/calculations'
 
 interface FormRendererProps {
   fields: FormField[]
@@ -15,8 +16,14 @@ interface FormRendererProps {
 // already read `config.required` as the sole source of truth for their required
 // indicator/validation, so a condition's `require`/`unrequire` effect flows through
 // the same channel they already use, with no changes needed to any of the 9 field files.
+//
+// `resolveFieldStates` runs against the raw `values` (conditions never target
+// Calculation fields, so the merge is irrelevant to visibility), but the `value`
+// prop handed to each FillField comes from `resolveFormValues`'s merged output —
+// that's the only place a Calculation field's live computed result actually exists.
 export function FormRenderer({ fields, values, onChange, errors }: FormRendererProps) {
   const fieldStates = useMemo(() => resolveFieldStates(fields, values), [fields, values])
+  const resolvedValues = useMemo(() => resolveFormValues(fields, values), [fields, values])
 
   return (
     <div className="space-y-4">
@@ -30,7 +37,7 @@ export function FormRenderer({ fields, values, onChange, errors }: FormRendererP
           <FillField
             key={field.id}
             config={effectiveConfig}
-            value={values[field.id]}
+            value={resolvedValues[field.id]}
             onChange={(value) => onChange(field.id, value)}
             error={errors?.[field.id]}
           />

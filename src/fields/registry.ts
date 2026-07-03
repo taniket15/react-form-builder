@@ -1,14 +1,21 @@
 import type { ComponentType } from 'react'
-import type { ConditionOperator, FieldConfig, FieldType } from '../types'
+import type { ConditionOperator, FieldConfig, FieldType, FormField } from '../types'
 
 export interface ConditionOperatorDef {
   operator: ConditionOperator
   label: string
 }
 
+/** Cross-field context a ConfigPanel needs but doesn't own — e.g. Calculation's
+ * source-field picker needs the sibling Number fields on the same template. */
+export interface BuilderContext {
+  allFields: FormField[]
+}
+
 export interface FieldConfigPanelProps<C> {
   config: C
   onChange: (config: C) => void
+  ctx: BuilderContext
 }
 
 export interface FieldFillProps<C, V> {
