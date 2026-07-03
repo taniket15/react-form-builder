@@ -77,7 +77,3 @@ const visible = matchedEffects.includes('hide') ? false
 **What was verified:** Worked through what happens if every keystroke in the config panel dispatches through the shared context: either every action persists immediately (making the spec's explicit Save button meaningless), or the in-memory `templates` array reflects unsaved edits everywhere it's read — e.g. a `TemplatesList` card's field count would appear to update live from an in-progress, unsaved Builder session, then silently revert on refresh once storage reloads the last-saved version. Confirmed this was a real bug path, not a style preference.
 
 **Rejected and changed:** Split into a thin `TemplatesContext` (collection CRUD only: `createTemplate`/`updateTemplate`/`deleteTemplate`) plus a local `builderReducer` draft that Builder edits in memory and commits only on Save. Also added `/builder/new` (a blank draft not persisted until first Save) to avoid "New Template" clicks creating ghost entries. Added an explicit manual-verification step ("edit a field, navigate away without saving, confirm the edit is gone") to the implementation checklist specifically to catch a regression here.
-
----
-
-*(Implementation-phase entries — significant prompts during coding, e.g. debugging sessions, generated boilerplate that needed correction, etc. — will be appended below as they occur.)*
