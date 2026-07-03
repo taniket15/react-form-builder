@@ -5,6 +5,7 @@ import { useResponses } from '../context/ResponsesContext'
 import { getFieldDefinition } from '../fields/registry'
 import { FormRenderer } from '../components/fill/FormRenderer'
 import { computeVisibleEntries, validateEntries } from '../engine/visibility'
+import { exportResponseToPdf } from '../pdf/exportPdf'
 import { Button } from '../components/common/Button'
 import type { FormResponse, FormValues } from '../types'
 
@@ -29,6 +30,9 @@ export function FillPage() {
     return initial
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  // Download PDF stays disabled until a real FormResponse exists — the PDF must
+  // include a genuine submission timestamp, which doesn't exist pre-submit.
+  const [submittedResponse, setSubmittedResponse] = useState<FormResponse | null>(null)
 
   useEffect(() => {
     if (template === undefined) {
@@ -71,16 +75,30 @@ export function FillPage() {
       submittedAt: new Date().toISOString(),
     }
     createResponse(response)
-    navigate(`/template/${template.id}/responses`)
+    setSubmittedResponse(response)
   }
 
   return (
     <div className="mx-auto max-w-xl p-6">
       <h1 className="mb-4 text-2xl font-semibold">{template.title}</h1>
       <FormRenderer fields={template.fields} values={values} onChange={handleChange} errors={errors} />
-      <Button variant="primary" onClick={handleSubmit} className="mt-4">
-        Submit
-      </Button>
+
+      {submittedResponse && (
+        <p className="mt-4 text-sm font-medium text-green-600">Submitted ✓</p>
+      )}
+
+      <div className="mt-2 flex items-center gap-2">
+        <Button variant="primary" onClick={handleSubmit}>
+          Submit
+        </Button>
+        <Button
+          disabled={!submittedResponse}
+          title={submittedResponse ? undefined : 'Submit the form first'}
+          onClick={() => submittedResponse && exportResponseToPdf(submittedResponse)}
+        >
+          Download PDF
+        </Button>
+      </div>
     </div>
   )
 }
