@@ -5,9 +5,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const VARIANT_CLASSES: Record<NonNullable<ButtonProps['variant']>, string> = {
-  primary: 'bg-blue-600 text-white hover:bg-blue-700',
-  secondary: 'border border-slate-300 hover:bg-slate-50',
-  danger: 'border border-slate-300 text-red-600 hover:bg-red-50',
+  primary: 'bg-primary text-white hover:bg-primary/90',
+  secondary: 'border border-ink/15 bg-surface text-ink hover:bg-surface-sunken',
+  danger: 'border border-ink/15 bg-surface text-danger hover:bg-danger-tint',
 }
 
 export function Button({ variant = 'secondary', className = '', ...props }: ButtonProps) {
@@ -15,7 +15,7 @@ export function Button({ variant = 'secondary', className = '', ...props }: Butt
     <button
       type="button"
       {...props}
-      className={`rounded px-3 py-1.5 text-sm font-medium disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASSES[variant]} ${className}`}
+      className={`rounded-[10px] px-3 py-1.5 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${VARIANT_CLASSES[variant]} ${className}`}
     />
   )
 }

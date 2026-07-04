@@ -13,8 +13,9 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import type { FormField } from '../../types'
+import type { Condition, FormField } from '../../types'
 import { getFieldDefinition } from '../../fields/registry'
+import { Badge } from '../common/Badge'
 
 interface CanvasProps {
   fields: FormField[]
@@ -24,13 +25,60 @@ interface CanvasProps {
   onReorder: (orderedIds: string[]) => void
 }
 
+const EFFECT_TEXT: Record<Condition['effect'], string> = {
+  show: 'Shown if',
+  hide: 'Hidden if',
+  require: 'Required if',
+  unrequire: 'Optional if',
+}
+
+const OPERATOR_TEXT: Record<string, string> = {
+  equals: '=',
+  notEquals: '≠',
+  contains: 'contains',
+  greaterThan: '>',
+  lessThan: '<',
+  withinRange: 'within',
+  before: 'before',
+  after: 'after',
+  containsAnyOf: 'any of',
+  containsAllOf: 'all of',
+  containsNoneOf: 'none of',
+}
+
+function describeValue(targetField: FormField | undefined, value: unknown): string {
+  if (targetField?.config.type === 'singleSelect' || targetField?.config.type === 'multiSelect') {
+    const options = targetField.config.options
+    const lookup = (id: unknown) => options.find((o) => o.id === id)?.label ?? String(id)
+    return Array.isArray(value) ? value.map(lookup).join(', ') : lookup(value)
+  }
+  if (value && typeof value === 'object' && 'min' in value && 'max' in value) {
+    const range = value as { min: number; max: number }
+    return `${range.min}–${range.max}`
+  }
+  if (Array.isArray(value)) return value.join(', ')
+  return String(value ?? '')
+}
+
+// Read-only summary of the field's first condition, for a quick glance on the canvas —
+// the ConditionsEditor (shown when the field is selected) is the source of truth for all rules.
+function describeCondition(condition: Condition, allFields: FormField[]): string {
+  const target = allFields.find((f) => f.id === condition.targetFieldId)
+  const label = target?.config.label ?? 'field'
+  const op = OPERATOR_TEXT[condition.operator] ?? condition.operator
+  const value = describeValue(target, condition.value)
+  return `${EFFECT_TEXT[condition.effect]} ${label} ${op} ${value}`.trim()
+}
+
 function CanvasItem({
   field,
+  allFields,
   selected,
   onSelect,
   onRemove,
 }: {
   field: FormField
+  allFields: FormField[]
   selected: boolean
   onSelect: () => void
   onRemove: () => void
@@ -39,6 +87,7 @@ function CanvasItem({
     id: field.id,
   })
   const definition = getFieldDefinition(field.config.type)
+  const firstCondition = field.conditions[0]
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -50,28 +99,34 @@ function CanvasItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-2 rounded border p-2 ${
-        selected ? 'border-blue-400 bg-blue-50' : 'border-slate-200 bg-white'
+      className={`flex items-center gap-2 rounded-xl border p-2 ${
+        selected ? 'border-[1.5px] border-ink/40 bg-surface-sunken' : 'border-ink/10 bg-surface'
       }`}
     >
       <button
         type="button"
         {...attributes}
         {...listeners}
-        className="cursor-grab px-1 text-slate-400"
+        className="cursor-grab px-1 text-muted"
         aria-label="Drag to reorder"
       >
         ⠿
       </button>
-      <button type="button" onClick={onSelect} className="flex-1 text-left">
-        <span className="mr-2">{definition.icon}</span>
-        <span className="text-sm font-medium">{field.config.label}</span>
-        <span className="ml-2 text-xs text-slate-400">{definition.label}</span>
+      <button type="button" onClick={onSelect} className="flex flex-1 flex-wrap items-center gap-2 text-left">
+        <span>{definition.icon}</span>
+        <span className="text-sm font-medium text-ink">{field.config.label}</span>
+        <span className="text-xs text-muted">{definition.label}</span>
+        {field.config.required && <Badge variant="required">Required</Badge>}
+        {firstCondition && (
+          <Badge variant={firstCondition.effect === 'hide' ? 'hide' : 'show'}>
+            {describeCondition(firstCondition, allFields)}
+          </Badge>
+        )}
       </button>
       <button
         type="button"
         onClick={onRemove}
-        className="px-1 text-slate-400 hover:text-red-500"
+        className="px-1 text-muted hover:text-danger"
         aria-label="Remove field"
       >
         ✕
@@ -95,7 +150,7 @@ export function Canvas({ fields, selectedFieldId, onSelect, onRemove, onReorder 
 
   if (fields.length === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center text-sm text-slate-400">
+      <div className="flex flex-1 items-center justify-center text-sm text-muted">
         Add a field from the left to get started.
       </div>
     )
@@ -109,6 +164,7 @@ export function Canvas({ fields, selectedFieldId, onSelect, onRemove, onReorder 
             <CanvasItem
               key={field.id}
               field={field}
+              allFields={fields}
               selected={field.id === selectedFieldId}
               onSelect={() => onSelect(field.id)}
               onRemove={() => onRemove(field.id)}

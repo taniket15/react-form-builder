@@ -10,6 +10,10 @@ export interface ConditionOperatorDef {
  * source-field picker needs the sibling Number fields on the same template. */
 export interface BuilderContext {
   allFields: FormField[]
+  /** Set by BuilderPage when Save was attempted with this field's label empty —
+   * every ConfigPanel's Label TextField reads this to show its own inline error,
+   * so the error surfaces in the sidebar only, not on the canvas. */
+  labelError?: string
 }
 
 export interface FieldConfigPanelProps<C> {

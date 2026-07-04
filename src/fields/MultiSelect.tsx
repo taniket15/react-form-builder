@@ -29,13 +29,14 @@ function createDefaultConfig(): MultiSelectConfig {
   }
 }
 
-function ConfigPanel({ config, onChange }: FieldConfigPanelProps<MultiSelectConfig>) {
+function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<MultiSelectConfig>) {
   return (
     <div className="space-y-3">
       <TextField
         label="Label"
         value={config.label}
         onChange={(e) => onChange({ ...config, label: e.target.value })}
+        error={ctx.labelError}
       />
       <Checkbox
         label="Required"
@@ -77,21 +78,34 @@ function FillField({ config, value, onChange, error }: FieldFillProps<MultiSelec
     else onChange([...value, id])
   }
 
+  const hasBounds = config.minSelections !== undefined || config.maxSelections !== undefined
+
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="field-label">
         {config.label}
-        {config.required && <span className="text-red-500"> *</span>}
+        {config.required && <span className="field-required-mark"> *</span>}
       </label>
       <div className="mt-1 space-y-1">
         {config.options.map((opt) => (
-          <label key={opt.id} className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={value.includes(opt.id)} onChange={() => toggle(opt.id)} />
+          <label key={opt.id} className="flex items-center gap-2 text-sm text-ink">
+            <input
+              type="checkbox"
+              className="size-4 accent-primary"
+              checked={value.includes(opt.id)}
+              onChange={() => toggle(opt.id)}
+            />
             {opt.label}
           </label>
         ))}
       </div>
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {hasBounds && (
+        <p className="mt-1 text-xs text-muted">
+          Choose {config.minSelections ?? 0}
+          {config.maxSelections !== undefined ? `–${config.maxSelections}` : '+'}
+        </p>
+      )}
+      {error && <p className="field-error">{error}</p>}
     </div>
   )
 }

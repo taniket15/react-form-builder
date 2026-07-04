@@ -7,6 +7,7 @@ import { FormRenderer } from '../components/fill/FormRenderer'
 import { computeVisibleEntries, validateEntries } from '../engine/visibility'
 import { exportResponseToPdf } from '../pdf/exportPdf'
 import { Button } from '../components/common/Button'
+import { Badge } from '../components/common/Badge'
 import type { FormResponse, FormValues } from '../types'
 
 export function FillPage() {
@@ -78,13 +79,28 @@ export function FillPage() {
     setSubmittedResponse(response)
   }
 
+  const errorCount = Object.keys(errors).length
+
   return (
     <div className="mx-auto max-w-xl p-6">
-      <h1 className="mb-4 text-2xl font-semibold">{template.title}</h1>
+      <h1 className="text-2xl font-semibold text-ink">{template.title}</h1>
+      <p className="mb-4 text-sm text-muted">
+        Fields marked <span className="field-required-mark">*</span> are required.
+      </p>
+
+      {errorCount > 0 && (
+        <div className="mb-4 rounded-[10px] border border-danger/30 bg-danger-tint px-3 py-2 text-sm font-medium text-danger">
+          {errorCount} field{errorCount === 1 ? '' : 's'} {errorCount === 1 ? 'needs' : 'need'} your attention
+          before you can submit.
+        </div>
+      )}
+
       <FormRenderer fields={template.fields} values={values} onChange={handleChange} errors={errors} />
 
       {submittedResponse && (
-        <p className="mt-4 text-sm font-medium text-green-600">Submitted ✓</p>
+        <p className="mt-4">
+          <Badge variant="show">Submitted ✓</Badge>
+        </p>
       )}
 
       <div className="mt-2 flex items-center gap-2">

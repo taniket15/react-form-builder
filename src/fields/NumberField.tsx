@@ -46,13 +46,14 @@ function createDefaultConfig(): NumberConfig {
   }
 }
 
-function ConfigPanel({ config, onChange }: FieldConfigPanelProps<NumberConfig>) {
+function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<NumberConfig>) {
   return (
     <div className="space-y-3">
       <TextField
         label="Label"
         value={config.label}
         onChange={(e) => onChange({ ...config, label: e.target.value })}
+        error={ctx.labelError}
       />
       <Checkbox
         label="Required"
@@ -110,34 +111,35 @@ function FillField({ config, value, onChange, error }: FieldFillProps<NumberConf
   const inputId = useId()
   return (
     <div>
-      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="field-label">
         {config.label}
-        {config.required && <span className="text-red-500"> *</span>}
+        {config.required && <span className="field-required-mark"> *</span>}
       </label>
       <div className="mt-1 flex items-stretch">
         {config.prefix && (
-          <span className="flex items-center rounded-l border border-r-0 border-slate-300 bg-slate-50 px-2 text-sm text-slate-500">
-            {config.prefix}
-          </span>
+          <span className="field-input-addon rounded-l-[10px] border-r-0">{config.prefix}</span>
         )}
         <input
           id={inputId}
           type="text"
           inputMode="decimal"
-          className={`block w-full border border-slate-300 px-2 py-1 ${config.prefix ? '' : 'rounded-l'} ${
-            config.suffix ? '' : 'rounded-r'
+          className={`field-input ${config.prefix ? 'rounded-l-none border-l-0' : ''} ${
+            config.suffix ? 'rounded-r-none border-r-0' : ''
           }`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           aria-invalid={!!error}
         />
         {config.suffix && (
-          <span className="flex items-center rounded-r border border-l-0 border-slate-300 bg-slate-50 px-2 text-sm text-slate-500">
-            {config.suffix}
-          </span>
+          <span className="field-input-addon rounded-r-[10px] border-l-0">{config.suffix}</span>
         )}
       </div>
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {config.decimalPlaces > 0 && (
+        <p className="mt-1 text-xs text-muted">
+          {config.decimalPlaces} decimal place{config.decimalPlaces === 1 ? '' : 's'}
+        </p>
+      )}
+      {error && <p className="field-error">{error}</p>}
     </div>
   )
 }

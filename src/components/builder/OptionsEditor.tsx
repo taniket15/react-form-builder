@@ -44,20 +44,20 @@ function OptionRow({
         type="button"
         {...attributes}
         {...listeners}
-        className="cursor-grab px-1 text-slate-400"
+        className="cursor-grab px-1 text-muted"
         aria-label="Drag to reorder option"
       >
         ⠿
       </button>
       <input
-        className="flex-1 rounded border border-slate-300 px-2 py-1 text-sm"
+        className="field-input flex-1"
         value={option.label}
         onChange={(e) => onLabelChange(e.target.value)}
       />
       <button
         type="button"
         onClick={onRemove}
-        className="px-1 text-slate-400 hover:text-red-500"
+        className="px-1 text-muted hover:text-danger"
         aria-label="Remove option"
       >
         ✕
@@ -84,7 +84,7 @@ export function OptionsEditor({ options, onChange }: OptionsEditorProps) {
 
   return (
     <div className="space-y-2">
-      <span className="block text-sm font-medium text-slate-700">Options</span>
+      <span className="field-label">Options</span>
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={options.map((o) => o.id)} strategy={verticalListSortingStrategy}>
           <div className="space-y-1">
@@ -101,7 +101,7 @@ export function OptionsEditor({ options, onChange }: OptionsEditorProps) {
           </div>
         </SortableContext>
       </DndContext>
-      <button type="button" onClick={handleAdd} className="text-sm text-blue-600 hover:underline">
+      <button type="button" onClick={handleAdd} className="text-sm text-primary hover:underline">
         + Add option
       </button>
     </div>

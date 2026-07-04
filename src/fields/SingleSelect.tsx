@@ -28,23 +28,24 @@ function createDefaultConfig(): SingleSelectConfig {
   }
 }
 
-function ConfigPanel({ config, onChange }: FieldConfigPanelProps<SingleSelectConfig>) {
+function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<SingleSelectConfig>) {
   return (
     <div className="space-y-3">
       <TextField
         label="Label"
         value={config.label}
         onChange={(e) => onChange({ ...config, label: e.target.value })}
+        error={ctx.labelError}
       />
       <Checkbox
         label="Required"
         checked={config.required}
         onChange={(e) => onChange({ ...config, required: e.target.checked })}
       />
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="field-label">
         Display type
         <select
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
+          className="field-select mt-1"
           value={config.displayType}
           onChange={(e) =>
             onChange({ ...config, displayType: e.target.value as SingleSelectConfig['displayType'] })
@@ -65,14 +66,14 @@ function FillField({ config, value, onChange, error }: FieldFillProps<SingleSele
 
   return (
     <div>
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="field-label">
         {config.label}
-        {config.required && <span className="text-red-500"> *</span>}
+        {config.required && <span className="field-required-mark"> *</span>}
       </label>
       <div className="mt-1">
         {config.displayType === 'dropdown' && (
           <select
-            className="block w-full rounded border border-slate-300 px-2 py-1"
+            className="field-select"
             value={value}
             onChange={(e) => onChange(e.target.value)}
             aria-invalid={!!error}
@@ -88,10 +89,11 @@ function FillField({ config, value, onChange, error }: FieldFillProps<SingleSele
         {config.displayType === 'radio' && (
           <div className="space-y-1">
             {config.options.map((opt) => (
-              <label key={opt.id} className="flex items-center gap-2 text-sm">
+              <label key={opt.id} className="flex items-center gap-2 text-sm text-ink">
                 <input
                   type="radio"
                   name={groupName}
+                  className="size-4 accent-primary"
                   checked={value === opt.id}
                   onChange={() => onChange(opt.id)}
                 />
@@ -107,10 +109,10 @@ function FillField({ config, value, onChange, error }: FieldFillProps<SingleSele
                 key={opt.id}
                 type="button"
                 onClick={() => onChange(opt.id)}
-                className={`rounded border px-3 py-1.5 text-sm ${
+                className={`rounded-[10px] border px-3 py-1.5 text-sm ${
                   value === opt.id
-                    ? 'border-blue-500 bg-blue-50 text-blue-700'
-                    : 'border-slate-300 hover:border-slate-400'
+                    ? 'border-[1.5px] border-primary bg-primary-tint text-ink'
+                    : 'border-ink/15 text-ink hover:border-primary/50'
                 }`}
               >
                 {opt.label}
@@ -119,7 +121,7 @@ function FillField({ config, value, onChange, error }: FieldFillProps<SingleSele
           </div>
         )}
       </div>
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && <p className="field-error">{error}</p>}
     </div>
   )
 }

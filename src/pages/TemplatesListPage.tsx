@@ -12,14 +12,22 @@ export function TemplatesListPage() {
   return (
     <div className="mx-auto max-w-4xl p-8">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Templates</h1>
+        <h1 className="text-2xl font-semibold text-ink">Your forms</h1>
         <Button variant="primary" onClick={() => navigate('/builder/new')}>
-          New Template
+          + New template
         </Button>
       </div>
 
       {templates.length === 0 ? (
-        <p className="text-slate-500">No templates yet. Click "New Template" to build your first form.</p>
+        <div className="rounded-xl border border-ink/10 bg-surface p-10 text-center">
+          <p className="font-medium text-ink">No forms yet</p>
+          <p className="mt-1 text-sm text-muted">
+            Create your first template and start collecting responses.
+          </p>
+          <Button variant="primary" className="mt-4" onClick={() => navigate('/builder/new')}>
+            + New template
+          </Button>
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {templates.map((template) => {
@@ -35,22 +43,25 @@ export function TemplatesListPage() {
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') navigate(`/builder/${template.id}`)
                 }}
-                className="cursor-pointer rounded border border-slate-200 p-4 text-left hover:border-blue-400 hover:shadow"
+                className="cursor-pointer rounded-xl border border-ink/10 bg-surface p-4 text-left transition-colors hover:border-primary/50 hover:shadow-sm"
               >
-                <h2 className="font-medium">{template.title}</h2>
-                <p className="mt-1 text-sm text-slate-500">{template.fields.length} field(s)</p>
-                <p className="text-sm text-slate-500">{responseCount} response(s)</p>
-                <p className="mt-2 text-xs text-slate-400">
+                <h2 className="font-semibold text-ink">{template.title}</h2>
+                <p className="mt-1 text-sm text-muted">
+                  {template.fields.length} field{template.fields.length === 1 ? '' : 's'} · {responseCount}{' '}
+                  response{responseCount === 1 ? '' : 's'}
+                </p>
+                <p className="mt-2 text-xs text-muted">
                   Last modified {formatDateTime(template.updatedAt)}
                 </p>
                 <div className="mt-3 flex gap-2">
                   <Button
+                    variant="primary"
                     onClick={(e) => {
                       e.stopPropagation()
                       navigate(`/fill/${template.id}`)
                     }}
                   >
-                    New Response
+                    New response
                   </Button>
                   <Button
                     onClick={(e) => {
@@ -58,7 +69,7 @@ export function TemplatesListPage() {
                       navigate(`/template/${template.id}/responses`)
                     }}
                   >
-                    View Responses
+                    Responses
                   </Button>
                 </div>
               </div>

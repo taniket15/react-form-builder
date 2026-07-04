@@ -2,6 +2,7 @@ import { useId } from 'react'
 import type { DateConfig } from '../types'
 import { TextField } from '../components/common/TextField'
 import { Checkbox } from '../components/common/Checkbox'
+import { Badge } from '../components/common/Badge'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -30,13 +31,14 @@ function createDefaultConfig(): DateConfig {
   }
 }
 
-function ConfigPanel({ config, onChange }: FieldConfigPanelProps<DateConfig>) {
+function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<DateConfig>) {
   return (
     <div className="space-y-3">
       <TextField
         label="Label"
         value={config.label}
         onChange={(e) => onChange({ ...config, label: e.target.value })}
+        error={ctx.labelError}
       />
       <Checkbox
         label="Required"
@@ -70,21 +72,24 @@ function FillField({ config, value, onChange, error }: FieldFillProps<DateConfig
   const inputId = useId()
   return (
     <div>
-      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
-        {config.label}
-        {config.required && <span className="text-red-500"> *</span>}
+      <label htmlFor={inputId} className="field-label flex items-center gap-2">
+        <span>
+          {config.label}
+          {config.required && <span className="field-required-mark"> *</span>}
+        </span>
+        {config.prefillToday && <Badge variant="today">Today</Badge>}
       </label>
       <input
         id={inputId}
         type="date"
-        className="mt-1 block rounded border border-slate-300 px-2 py-1"
+        className="field-input mt-1 block w-auto"
         min={config.minDate}
         max={config.maxDate}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={!!error}
       />
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && <p className="field-error">{error}</p>}
     </div>
   )
 }

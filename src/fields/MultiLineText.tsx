@@ -20,13 +20,14 @@ function createDefaultConfig(): MultiLineTextConfig {
   }
 }
 
-function ConfigPanel({ config, onChange }: FieldConfigPanelProps<MultiLineTextConfig>) {
+function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<MultiLineTextConfig>) {
   return (
     <div className="space-y-3">
       <TextField
         label="Label"
         value={config.label}
         onChange={(e) => onChange({ ...config, label: e.target.value })}
+        error={ctx.labelError}
       />
       <TextField
         label="Placeholder"
@@ -77,20 +78,25 @@ function FillField({ config, value, onChange, error }: FieldFillProps<MultiLineT
   const inputId = useId()
   return (
     <div>
-      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="field-label">
         {config.label}
-        {config.required && <span className="text-red-500"> *</span>}
+        {config.required && <span className="field-required-mark"> *</span>}
       </label>
       <textarea
         id={inputId}
-        className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
+        className="field-input mt-1 resize-none"
         rows={config.rows}
         placeholder={config.placeholder}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         aria-invalid={!!error}
       />
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {config.maxLength !== undefined && (
+        <p className="mt-1 text-xs text-muted">
+          {value.length} / {config.maxLength}
+        </p>
+      )}
+      {error && <p className="field-error">{error}</p>}
     </div>
   )
 }

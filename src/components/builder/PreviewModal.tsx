@@ -21,13 +21,13 @@ export function PreviewModal({ template, onClose }: { template: FormTemplate; on
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="flex max-h-[90vh] w-full max-w-xl flex-col rounded-lg bg-white shadow-xl">
-        <div className="flex items-center justify-between border-b border-slate-200 p-4">
-          <h2 className="text-lg font-semibold">Preview — {template.title}</h2>
+      <div className="flex max-h-[90vh] w-full max-w-xl flex-col rounded-xl bg-surface shadow-xl">
+        <div className="flex items-center justify-between border-b border-ink/10 p-4">
+          <h2 className="text-lg font-semibold text-ink">Preview — {template.title}</h2>
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600"
+            className="text-muted hover:text-ink"
             aria-label="Close preview"
           >
             ✕
@@ -35,7 +35,7 @@ export function PreviewModal({ template, onClose }: { template: FormTemplate; on
         </div>
         <div className="flex-1 overflow-y-auto p-4">
           {template.fields.length === 0 ? (
-            <p className="text-sm text-slate-400">Add a field to see a preview.</p>
+            <p className="text-sm text-muted">Add a field to see a preview.</p>
           ) : (
             <FormRenderer
               fields={template.fields}
@@ -44,7 +44,7 @@ export function PreviewModal({ template, onClose }: { template: FormTemplate; on
             />
           )}
         </div>
-        <div className="border-t border-slate-200 p-4">
+        <div className="border-t border-ink/10 p-4">
           <Button variant="primary" onClick={onClose}>
             Close Preview
           </Button>

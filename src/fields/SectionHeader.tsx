@@ -14,11 +14,11 @@ import {
 type Value = null
 
 const SIZE_CLASSES: Record<SectionHeaderConfig['size'], string> = {
-  xs: 'text-sm font-medium text-slate-700',
-  sm: 'text-base font-medium text-slate-800',
-  md: 'text-lg font-semibold text-slate-900',
-  lg: 'text-xl font-semibold text-slate-900',
-  xl: 'text-2xl font-bold text-slate-900',
+  xs: 'text-sm font-semibold text-ink',
+  sm: 'text-base font-semibold text-ink',
+  md: 'text-lg font-semibold text-ink',
+  lg: 'text-xl font-bold text-ink',
+  xl: 'text-2xl font-bold text-ink',
 }
 
 const PDF_HEADING_TAG: Record<SectionHeaderConfig['size'], string> = {
@@ -38,18 +38,19 @@ function createDefaultConfig(): SectionHeaderConfig {
   }
 }
 
-function ConfigPanel({ config, onChange }: FieldConfigPanelProps<SectionHeaderConfig>) {
+function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<SectionHeaderConfig>) {
   return (
     <div className="space-y-3">
       <TextField
         label="Label"
         value={config.label}
         onChange={(e) => onChange({ ...config, label: e.target.value })}
+        error={ctx.labelError}
       />
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="field-label">
         Size
         <select
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
+          className="field-select mt-1"
           value={config.size}
           onChange={(e) =>
             onChange({ ...config, size: e.target.value as SectionHeaderConfig['size'] })
@@ -67,7 +68,9 @@ function ConfigPanel({ config, onChange }: FieldConfigPanelProps<SectionHeaderCo
 }
 
 function FillField({ config }: FieldFillProps<SectionHeaderConfig, Value>) {
-  return <h2 className={SIZE_CLASSES[config.size]}>{config.label}</h2>
+  return (
+    <h2 className={`border-b border-ink/15 pb-2 ${SIZE_CLASSES[config.size]}`}>{config.label}</h2>
+  )
 }
 
 function validate(): string | null {

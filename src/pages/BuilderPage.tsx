@@ -27,6 +27,12 @@ export function BuilderPage() {
   )
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
+  const [saveAttempted, setSaveAttempted] = useState(false)
+
+  // Label is required on every field type (it's a BaseConfig property, so this check
+  // applies uniformly across all 9 registry types with no per-type special-casing).
+  const emptyLabelFields = draft.fields.filter((f) => f.config.label.trim() === '')
+  const titleError = saveAttempted && draft.title.trim() === '' ? 'Title is required' : undefined
 
   useEffect(() => {
     if (!isNew && existingTemplate === undefined) {
@@ -49,6 +55,16 @@ export function BuilderPage() {
   }
 
   function handleSave() {
+    setSaveAttempted(true)
+    if (draft.title.trim() === '') {
+      return
+    }
+    const firstInvalid = emptyLabelFields[0]
+    if (firstInvalid) {
+      setSelectedFieldId(firstInvalid.id)
+      return
+    }
+
     const toSave = { ...draft, updatedAt: new Date().toISOString() }
     if (isNew) {
       createTemplate(toSave)
@@ -60,19 +76,23 @@ export function BuilderPage() {
 
   return (
     <div className="flex h-svh flex-col">
-      <header className="flex items-center gap-3 border-b border-slate-200 p-3">
-        <input
-          className="flex-1 rounded border border-slate-300 px-2 py-1 text-lg font-semibold"
-          value={draft.title}
-          onChange={(e) => dispatch({ type: 'SET_TITLE', title: e.target.value })}
-        />
+      <header className="flex items-center gap-3 border-b border-ink/10 bg-surface p-3">
+        <div className="flex-1">
+          <input
+            className="field-input w-full text-lg font-semibold"
+            value={draft.title}
+            aria-invalid={!!titleError}
+            onChange={(e) => dispatch({ type: 'SET_TITLE', title: e.target.value })}
+          />
+          {titleError && <p className="field-error">{titleError}</p>}
+        </div>
         {/* Only shown once the template has been saved at least once — a /builder/new
             draft has no id to link to yet. */}
         {!isNew && (
           <button
             type="button"
             onClick={() => navigate(`/template/${draft.id}/responses`)}
-            className="text-sm text-blue-600 hover:underline"
+            className="text-sm text-primary hover:underline"
           >
             View Responses
           </button>
@@ -94,15 +114,18 @@ export function BuilderPage() {
           }}
           onReorder={(orderedIds) => dispatch({ type: 'REORDER_FIELDS', orderedIds })}
         />
-        <div className="w-72 shrink-0 overflow-y-auto border-l border-slate-200 p-3">
+        <div className="w-72 shrink-0 overflow-y-auto border-l border-ink/10 bg-surface-sunken p-3">
           {selectedField ? (
             <ConfigPanelHost
               field={selectedField}
               allFields={draft.fields}
+              labelError={
+                saveAttempted && selectedField.config.label.trim() === '' ? 'Label is required' : undefined
+              }
               onChange={(field) => dispatch({ type: 'UPDATE_FIELD', field })}
             />
           ) : (
-            <p className="text-sm text-slate-400">Select a field to configure it.</p>
+            <p className="text-sm text-muted">Select a field to configure it.</p>
           )}
         </div>
       </div>
@@ -114,10 +137,12 @@ export function BuilderPage() {
 function ConfigPanelHost({
   field,
   allFields,
+  labelError,
   onChange,
 }: {
   field: FormField
   allFields: FormField[]
+  labelError?: string
   onChange: (field: FormField) => void
 }) {
   const definition = getFieldDefinition(field.config.type)
@@ -127,7 +152,7 @@ function ConfigPanelHost({
       <ConfigPanel
         config={field.config}
         onChange={(config) => onChange({ ...field, config })}
-        ctx={{ allFields }}
+        ctx={{ allFields, labelError }}
       />
       <DefaultVisibilityToggle
         defaultVisible={field.defaultVisible}

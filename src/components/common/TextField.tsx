@@ -2,19 +2,24 @@ import { useId, type InputHTMLAttributes } from 'react'
 
 interface TextFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string
+  error?: string
 }
 
-export function TextField({ label, id, className = '', ...props }: TextFieldProps) {
+export function TextField({ label, id, className = '', error, ...props }: TextFieldProps) {
   const generatedId = useId()
   const inputId = id ?? generatedId
   return (
-    <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
-      {label}
+    <div>
+      <label htmlFor={inputId} className="field-label">
+        {label}
+      </label>
       <input
         id={inputId}
         {...props}
-        className={`mt-1 block w-full rounded border border-slate-300 px-2 py-1 ${className}`}
+        aria-invalid={!!error}
+        className={`field-input mt-1 ${className}`}
       />
-    </label>
+      {error && <p className="field-error">{error}</p>}
+    </div>
   )
 }

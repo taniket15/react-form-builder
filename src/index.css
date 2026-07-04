@@ -1,1 +1,67 @@
 @import "tailwindcss";
+
+@font-face {
+  font-family: 'Figtree';
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url('/fonts/Figtree-Variable.woff2') format('woff2');
+}
+
+@theme {
+  --color-bg: #f6f2ea;
+  --color-surface: #fffdf9;
+  --color-surface-sunken: #f1eadd;
+
+  --color-primary: #ec6a49;
+  --color-primary-tint: #fdeee9;
+
+  --color-ink: #2e2a24;
+  --color-ink-soft: #4a4436;
+  --color-muted: #8a7f6d;
+
+  --color-calc: #5b52c9;
+  --color-calc-tint: #ddd7f0;
+
+  --color-success: #2f6b4f;
+  --color-success-tint: #d3e5d9;
+
+  --color-danger: #d64545;
+  --color-danger-tint: #fdecec;
+
+  --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-ink);
+}
+
+@layer components {
+  .field-label {
+    @apply block text-sm font-medium text-ink;
+  }
+  .field-required-mark {
+    @apply text-danger;
+  }
+  .field-input {
+    @apply block w-full rounded-[10px] border border-ink/15 bg-surface px-2 py-1.5 text-ink placeholder:text-muted
+      focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30
+      aria-invalid:border-danger aria-invalid:ring-2 aria-invalid:ring-danger-tint;
+  }
+  .field-input-addon {
+    @apply flex items-center border border-ink/15 bg-surface-sunken px-2 text-sm text-muted;
+  }
+  .field-select {
+    @apply block w-full rounded-[10px] border border-ink/15 bg-surface px-2 py-1.5 pr-8 text-ink
+      focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30
+      aria-invalid:border-danger aria-invalid:ring-2 aria-invalid:ring-danger-tint;
+  }
+  .field-error {
+    @apply mt-1 text-sm text-danger;
+  }
+  .category-label {
+    @apply text-xs font-semibold uppercase tracking-wider text-muted;
+  }
+}

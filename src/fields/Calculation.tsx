@@ -1,12 +1,31 @@
 import { useId } from 'react'
-import type { CalculationConfig } from '../types'
+import type { CalculationConfig, FormField } from '../types'
 import { TextField } from '../components/common/TextField'
+import { Badge } from '../components/common/Badge'
 import {
   registerField,
   type FieldConfigPanelProps,
   type FieldDefinition,
   type FieldFillProps,
 } from './registry'
+
+const AGGREGATION_LABEL: Record<CalculationConfig['aggregation'], string> = {
+  sum: 'Sum',
+  average: 'Average',
+  min: 'Minimum',
+  max: 'Maximum',
+}
+
+// Read-only caption describing what's being computed, e.g. "Sum of Guests, Tickets" —
+// aggregation only, no arithmetic offset (the design mockup's "+1" caption is cosmetic
+// and intentionally not implemented — see docs/design-plan.md).
+function describeAggregation(config: CalculationConfig, allFields: FormField[]): string {
+  const sourceLabels = config.sourceFieldIds
+    .map((id) => allFields.find((f) => f.id === id)?.config.label)
+    .filter((label): label is string => Boolean(label))
+  if (sourceLabels.length === 0) return `${AGGREGATION_LABEL[config.aggregation]} of no fields yet`
+  return `${AGGREGATION_LABEL[config.aggregation]} of ${sourceLabels.join(', ')}`
+}
 
 // The computed value is never stored in raw Fill values — it's derived on every
 // render by the calculations engine (resolveFormValues) and passed in as `value`
@@ -42,11 +61,12 @@ function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<Calculatio
         label="Label"
         value={config.label}
         onChange={(e) => onChange({ ...config, label: e.target.value })}
+        error={ctx.labelError}
       />
-      <label className="block text-sm font-medium text-slate-700">
+      <label className="field-label">
         Aggregation
         <select
-          className="mt-1 block w-full rounded border border-slate-300 px-2 py-1"
+          className="field-select mt-1"
           value={config.aggregation}
           onChange={(e) =>
             onChange({ ...config, aggregation: e.target.value as CalculationConfig['aggregation'] })
@@ -72,15 +92,16 @@ function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<Calculatio
         }
       />
       <div>
-        <span className="block text-sm font-medium text-slate-700">Source fields (Number only)</span>
+        <span className="field-label">Source fields (Number only)</span>
         {numberFields.length === 0 ? (
-          <p className="mt-1 text-xs text-slate-400">Add a Number field to this form first.</p>
+          <p className="mt-1 text-xs text-muted">Add a Number field to this form first.</p>
         ) : (
           <div className="mt-1 space-y-1">
             {numberFields.map((f) => (
-              <label key={f.id} className="flex items-center gap-2 text-sm">
+              <label key={f.id} className="flex items-center gap-2 text-sm text-ink">
                 <input
                   type="checkbox"
+                  className="size-4 accent-primary"
                   checked={config.sourceFieldIds.includes(f.id)}
                   onChange={() => toggleSource(f.id)}
                 />
@@ -89,6 +110,7 @@ function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<Calculatio
             ))}
           </div>
         )}
+        <p className="mt-1 text-xs text-muted">{describeAggregation(config, ctx.allFields)}</p>
       </div>
     </div>
   )
@@ -98,15 +120,16 @@ function FillField({ config, value }: FieldFillProps<CalculationConfig, Value>) 
   const inputId = useId()
   return (
     <div>
-      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="field-label flex items-center gap-2">
         {config.label}
+        <Badge variant="calc">Σ {AGGREGATION_LABEL[config.aggregation]}</Badge>
       </label>
       <input
         id={inputId}
         type="text"
         readOnly
         disabled
-        className="mt-1 block w-full rounded border border-slate-300 bg-slate-50 px-2 py-1 text-slate-600"
+        className="mt-1 block w-full rounded-[10px] border border-calc/30 bg-calc-tint px-2 py-1.5 font-medium text-calc"
         value={value.toFixed(config.decimalPlaces)}
       />
     </div>

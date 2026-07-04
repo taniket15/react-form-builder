@@ -40,30 +40,34 @@ function buildHtmlDocument(title: string, submittedAt: string, rowsHtml: string)
 <style>
   * { box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    color: #1e293b;
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #2e2a24;
     max-width: 720px;
     margin: 0 auto;
     padding: 48px 32px;
   }
-  h1.pdf-title { font-size: 24px; margin: 0 0 4px; }
-  .pdf-timestamp { color: #64748b; font-size: 13px; margin: 0 0 32px; }
+  h1.pdf-title { font-size: 26px; margin: 0 0 4px; }
+  .pdf-timestamp {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #8a7f6d; font-size: 12px; margin: 0 0 32px;
+  }
   .pdf-field-row { margin: 0 0 16px; break-inside: avoid; page-break-inside: avoid; }
   .pdf-field-label {
     font-size: 12px; font-weight: 600; text-transform: uppercase;
-    letter-spacing: 0.04em; color: #64748b; margin-bottom: 2px;
+    letter-spacing: 0.04em; color: #8a7f6d; margin-bottom: 2px;
   }
-  .pdf-field-value { font-size: 15px; line-height: 1.5; white-space: pre-wrap; }
-  .pdf-field-value .pdf-empty { color: #94a3b8; font-style: italic; }
+  .pdf-field-value { font-size: 15px; font-weight: 600; line-height: 1.5; white-space: pre-wrap; }
+  .pdf-field-value .pdf-empty { color: #a89e8c; font-style: italic; font-weight: 400; }
   .pdf-section-header {
-    margin: 28px 0 12px; padding-top: 12px; border-top: 1px solid #e2e8f0;
+    margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 1px solid #2e2a24;
+    text-transform: uppercase; letter-spacing: 0.04em;
     break-inside: avoid; page-break-inside: avoid;
   }
-  .pdf-section-header--xs { font-size: 13px; font-weight: 600; }
-  .pdf-section-header--sm { font-size: 15px; font-weight: 600; }
-  .pdf-section-header--md { font-size: 18px; font-weight: 600; }
-  .pdf-section-header--lg { font-size: 22px; font-weight: 700; }
-  .pdf-section-header--xl { font-size: 27px; font-weight: 700; }
+  .pdf-section-header--xs { font-size: 12px; font-weight: 600; }
+  .pdf-section-header--sm { font-size: 14px; font-weight: 600; }
+  .pdf-section-header--md { font-size: 16px; font-weight: 700; }
+  .pdf-section-header--lg { font-size: 19px; font-weight: 700; }
+  .pdf-section-header--xl { font-size: 23px; font-weight: 700; }
   @media print {
     body { padding: 0; max-width: 100%; }
     @page { margin: 20mm 16mm; }

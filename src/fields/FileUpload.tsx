@@ -45,13 +45,14 @@ function createDefaultConfig(): FileUploadConfig {
   }
 }
 
-function ConfigPanel({ config, onChange }: FieldConfigPanelProps<FileUploadConfig>) {
+function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<FileUploadConfig>) {
   return (
     <div className="space-y-3">
       <TextField
         label="Label"
         value={config.label}
         onChange={(e) => onChange({ ...config, label: e.target.value })}
+        error={ctx.labelError}
       />
       <Checkbox
         label="Required"
@@ -101,9 +102,20 @@ function FillField({ config, value, onChange, error }: FieldFillProps<FileUpload
 
   return (
     <div>
-      <label htmlFor={inputId} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={inputId} className="field-label">
         {config.label}
-        {config.required && <span className="text-red-500"> *</span>}
+        {config.required && <span className="field-required-mark"> *</span>}
+      </label>
+      <label
+        htmlFor={inputId}
+        className="mt-1 flex cursor-pointer flex-col items-center gap-1 rounded-xl border border-dashed border-ink/25 bg-surface px-4 py-6 text-center hover:border-primary/50"
+      >
+        <span aria-hidden className="text-lg text-muted">
+          ⇧
+        </span>
+        <span className="text-sm text-ink">
+          <span className="font-medium">Drop files</span> or browse
+        </span>
       </label>
       <input
         id={inputId}
@@ -111,15 +123,21 @@ function FillField({ config, value, onChange, error }: FieldFillProps<FileUpload
         multiple={config.maxFiles === undefined || config.maxFiles > 1}
         accept={config.allowedTypes}
         onChange={handleFileInput}
-        className="mt-1 block text-sm"
+        className="sr-only"
         aria-invalid={!!error}
       />
+      {(config.allowedTypes || config.maxFiles !== undefined) && (
+        <p className="mt-1 text-xs text-muted">
+          {config.allowedTypes ? config.allowedTypes.split(',').map((t) => t.trim()).join(', ') : 'Any file type'}
+          {config.maxFiles !== undefined ? ` · max ${config.maxFiles}` : ''}
+        </p>
+      )}
       {value.length > 0 && (
         <ul className="mt-2 space-y-1">
           {value.map((file, i) => (
             <li
               key={`${file.name}-${i}`}
-              className="flex items-center justify-between rounded border border-slate-200 px-2 py-1 text-sm"
+              className="flex items-center justify-between rounded-[10px] border border-ink/10 bg-surface px-2 py-1 text-sm text-ink"
             >
               <span>
                 {file.name} ({formatFileSize(file.size)})
@@ -127,7 +145,7 @@ function FillField({ config, value, onChange, error }: FieldFillProps<FileUpload
               <button
                 type="button"
                 onClick={() => handleRemove(i)}
-                className="text-slate-400 hover:text-red-500"
+                className="text-muted hover:text-danger"
                 aria-label={`Remove ${file.name}`}
               >
                 ✕
@@ -136,7 +154,7 @@ function FillField({ config, value, onChange, error }: FieldFillProps<FileUpload
           ))}
         </ul>
       )}
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && <p className="field-error">{error}</p>}
     </div>
   )
 }
