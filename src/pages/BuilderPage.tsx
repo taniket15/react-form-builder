@@ -9,6 +9,7 @@ import { DefaultVisibilityToggle } from '../components/builder/DefaultVisibility
 import { ConditionsEditor } from '../components/builder/ConditionsEditor'
 import { PreviewModal } from '../components/builder/PreviewModal'
 import { Button } from '../components/common/Button'
+import { BackLink } from '../components/common/BackLink'
 import type { FieldType, FormField } from '../types'
 
 export function BuilderPage() {
@@ -77,6 +78,7 @@ export function BuilderPage() {
   return (
     <div className="flex h-svh flex-col">
       <header className="flex items-center gap-3 border-b border-ink/10 bg-surface p-3">
+        <BackLink />
         <div className="flex-1">
           <input
             className="field-input w-full text-lg font-semibold"

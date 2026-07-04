@@ -8,6 +8,7 @@ import { computeVisibleEntries, validateEntries } from '../engine/visibility'
 import { exportResponseToPdf } from '../pdf/exportPdf'
 import { Button } from '../components/common/Button'
 import { Badge } from '../components/common/Badge'
+import { BackLink } from '../components/common/BackLink'
 import type { FormResponse, FormValues } from '../types'
 
 export function FillPage() {
@@ -83,6 +84,9 @@ export function FillPage() {
 
   return (
     <div className="mx-auto max-w-xl p-6">
+      <div className="mb-4">
+        <BackLink />
+      </div>
       <h1 className="text-2xl font-semibold text-ink">{template.title}</h1>
       <p className="mb-4 text-sm text-muted">
         Fields marked <span className="field-required-mark">*</span> are required.

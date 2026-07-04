@@ -5,6 +5,7 @@ import { useResponses } from '../context/ResponsesContext'
 import { formatDateTime } from '../utils/formatDateTime'
 import { exportResponseToPdf } from '../pdf/exportPdf'
 import { Button } from '../components/common/Button'
+import { BackLink } from '../components/common/BackLink'
 import { ResponsePreviewModal } from '../components/responses/ResponsePreviewModal'
 import type { FormResponse } from '../types'
 
@@ -38,13 +39,9 @@ export function ResponsesPage() {
 
   return (
     <div className="mx-auto max-w-2xl p-6">
-      <button
-        type="button"
-        onClick={() => navigate('/')}
-        className="mb-4 text-sm text-primary hover:underline"
-      >
-        ← Back to Templates
-      </button>
+      <div className="mb-4">
+        <BackLink />
+      </div>
       <h1 className="mb-1 text-2xl font-semibold text-ink">{template.title}</h1>
       <p className="mb-4 text-sm text-muted">{templateResponses.length} response(s)</p>
 

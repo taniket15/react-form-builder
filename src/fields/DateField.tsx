@@ -2,7 +2,6 @@ import { useId } from 'react'
 import type { DateConfig } from '../types'
 import { TextField } from '../components/common/TextField'
 import { Checkbox } from '../components/common/Checkbox'
-import { Badge } from '../components/common/Badge'
 import { LabelRequiredFields } from './configPanelFields'
 import {
   registerField,
@@ -63,12 +62,9 @@ function FillField({ config, value, onChange, error }: FieldFillProps<DateConfig
   const inputId = useId()
   return (
     <div>
-      <label htmlFor={inputId} className="field-label flex items-center gap-2">
-        <span>
-          {config.label}
-          {config.required && <span className="field-required-mark"> *</span>}
-        </span>
-        {config.prefillToday && <Badge variant="today">Today</Badge>}
+      <label htmlFor={inputId} className="field-label">
+        {config.label}
+        {config.required && <span className="field-required-mark"> *</span>}
       </label>
       <input
         id={inputId}
