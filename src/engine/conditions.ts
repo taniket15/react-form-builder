@@ -30,7 +30,7 @@ function evaluateCondition(condition: Condition, fields: FormField[], rawValues:
  * conditions that share an effect would make that whole class of "show for any of
  * these values" configuration impossible to express.
  */
-export function resolveFieldState(
+function resolveFieldState(
   field: FormField,
   fields: FormField[],
   rawValues: FormValues,
