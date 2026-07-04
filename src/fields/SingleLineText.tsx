@@ -1,6 +1,8 @@
 import { useId } from 'react'
 import type { SingleLineTextConfig } from '../types'
 import { TextField } from '../components/common/TextField'
+import { AffixWrapper } from '../components/common/AffixInput'
+import { affixInputClassName } from '../components/common/affixInputClassName'
 import { TextLengthConfigFields, validateTextLength, evaluateStringEqualsContains } from './textFieldShared'
 import {
   registerField,
@@ -47,24 +49,16 @@ function FillField({ config, value, onChange, error }: FieldFillProps<SingleLine
         {config.label}
         {config.required && <span className="field-required-mark"> *</span>}
       </label>
-      <div className="mt-1 flex items-stretch">
-        {config.prefix && (
-          <span className="field-input-addon rounded-l-[10px] border-r-0">{config.prefix}</span>
-        )}
+      <AffixWrapper prefix={config.prefix} suffix={config.suffix}>
         <input
           id={inputId}
-          className={`field-input ${config.prefix ? 'rounded-l-none border-l-0' : ''} ${
-            config.suffix ? 'rounded-r-none border-r-0' : ''
-          }`}
+          className={`field-input ${affixInputClassName(config.prefix, config.suffix)}`}
           placeholder={config.placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           aria-invalid={!!error}
         />
-        {config.suffix && (
-          <span className="field-input-addon rounded-r-[10px] border-l-0">{config.suffix}</span>
-        )}
-      </div>
+      </AffixWrapper>
       {error && <p className="field-error">{error}</p>}
     </div>
   )

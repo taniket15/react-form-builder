@@ -1,6 +1,8 @@
 import { useId } from 'react'
 import { isRangeValue, type NumberConfig } from '../types'
 import { TextField } from '../components/common/TextField'
+import { AffixWrapper } from '../components/common/AffixInput'
+import { affixInputClassName } from '../components/common/affixInputClassName'
 import { LabelRequiredFields, DecimalPlacesField } from './configPanelFields'
 import {
   registerField,
@@ -87,25 +89,17 @@ function FillField({ config, value, onChange, error }: FieldFillProps<NumberConf
         {config.label}
         {config.required && <span className="field-required-mark"> *</span>}
       </label>
-      <div className="mt-1 flex items-stretch">
-        {config.prefix && (
-          <span className="field-input-addon rounded-l-[10px] border-r-0">{config.prefix}</span>
-        )}
+      <AffixWrapper prefix={config.prefix} suffix={config.suffix}>
         <input
           id={inputId}
           type="text"
           inputMode="decimal"
-          className={`field-input ${config.prefix ? 'rounded-l-none border-l-0' : ''} ${
-            config.suffix ? 'rounded-r-none border-r-0' : ''
-          }`}
+          className={`field-input ${affixInputClassName(config.prefix, config.suffix)}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           aria-invalid={!!error}
         />
-        {config.suffix && (
-          <span className="field-input-addon rounded-r-[10px] border-l-0">{config.suffix}</span>
-        )}
-      </div>
+      </AffixWrapper>
       {config.decimalPlaces > 0 && (
         <p className="mt-1 text-xs text-muted">
           {config.decimalPlaces} decimal place{config.decimalPlaces === 1 ? '' : 's'}
