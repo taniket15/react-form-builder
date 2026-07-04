@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import type { FormField, FormValues } from '../../types'
 import { getFieldDefinition } from '../../fields/registry'
 import { resolveFieldStates } from '../../engine/conditions'
-import { resolveFormValues } from '../../engine/calculations'
+import { resolveFormValues } from '../../engine/formValues'
 
 interface FormRendererProps {
   fields: FormField[]

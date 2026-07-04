@@ -1,7 +1,7 @@
 import type { FormField, FormValues } from '../types'
 import { getFieldDefinition } from '../fields/registry'
 import { resolveFieldStates, type FieldState } from './conditions'
-import { resolveFormValues } from './calculations'
+import { resolveFormValues } from './formValues'
 
 export interface VisibleEntry {
   field: FormField

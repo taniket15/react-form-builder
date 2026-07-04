@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest'
 import '../fields'
 import { computeVisibleEntries, getVisibleEntries, validateEntries } from './visibility'
 import { resolveFieldStates } from './conditions'
-import { resolveFormValues } from './calculations'
+import { resolveFormValues } from './formValues'
 import type { Condition, FormField } from '../types'
 
 function textField(

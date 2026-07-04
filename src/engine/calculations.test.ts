@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import '../fields'
-import { computeCalculations, resolveFormValues } from './calculations'
-import type { CalculationConfig, FormField, FormValues } from '../types'
+import { computeCalculations } from './calculations'
+import type { CalculationConfig, FormField } from '../types'
 
 function numberField(id: string): FormField {
   return {
@@ -68,15 +68,5 @@ describe('computeCalculations', () => {
     const total = calcField('total', ['a', 'other'], 'sum')
     const result = computeCalculations([a, other, total], { a: '10' })
     expect(result.total).toBe(10)
-  })
-
-  it('resolveFormValues merges calculation results without mutating raw values', () => {
-    const a = numberField('a')
-    const total = calcField('total', ['a'], 'sum')
-    const raw: FormValues = { a: '7' }
-    const resolved = resolveFormValues([a, total], raw)
-    expect(resolved.a).toBe('7')
-    expect(resolved.total).toBe(7)
-    expect(raw.total).toBeUndefined()
   })
 })
