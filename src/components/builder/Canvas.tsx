@@ -50,7 +50,8 @@ function describeValue(targetField: FormField | undefined, value: unknown): stri
   if (targetField?.config.type === 'singleSelect' || targetField?.config.type === 'multiSelect') {
     const options = targetField.config.options
     const lookup = (id: unknown) => options.find((o) => o.id === id)?.label ?? String(id)
-    return Array.isArray(value) ? value.map(lookup).join(', ') : lookup(value)
+    if (Array.isArray(value)) return value.map(lookup).join(', ')
+    return value === undefined || value === null || value === '' ? '' : lookup(value)
   }
   if (value && typeof value === 'object' && 'min' in value && 'max' in value) {
     const range = value as { min: number; max: number }
