@@ -47,8 +47,10 @@ export function TemplatesListPage() {
               >
                 <h2 className="font-semibold text-ink">{template.title}</h2>
                 <p className="mt-1 text-sm text-muted">
-                  {template.fields.length} field{template.fields.length === 1 ? '' : 's'} · {responseCount}{' '}
-                  response{responseCount === 1 ? '' : 's'}
+                  {template.fields.length} field{template.fields.length === 1 ? '' : 's'} ·{' '}
+                  <span className="text-primary">
+                    {responseCount} response{responseCount === 1 ? '' : 's'}
+                  </span>
                 </p>
                 <p className="mt-2 text-xs text-muted">
                   Last modified {formatDateTime(template.updatedAt)}
