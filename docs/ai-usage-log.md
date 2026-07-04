@@ -103,3 +103,77 @@ const visible = matchedEffects.includes('hide') ? false
 **What was verified:** Confirmed the re-enabled button calls the exact same `exportResponseToPdf` function the Responses list uses for re-download — still one PDF-export code path in the app, just two places that can trigger it once a genuine `FormResponse` exists.
 
 **Changed:** Submit no longer redirects to `/responses`; Fill shows a "Submitted ✓" state instead, with Download PDF now enabled. A follow-up request removed a "View Responses" link that had briefly been added alongside it, keeping the Fill page focused on the fill/submit/download loop — Responses stays reachable only from the template card and the Builder header.
+
+---
+
+## Design phase
+
+### 8. Design retrofit build-order assumption invalidated mid-session — rewritten as a pure retrofit plan
+
+**Prompt:** Review the standalone HTML design mockup against `docs/plan.md`, reconcile any conflicts, then prepare a step-by-step implementation plan in small, independently verifiable steps.
+
+**What happened:** The first draft of `docs/design-build-steps.md` assumed the functional app hadn't been built yet, phasing design work alongside `docs/plan.md`'s original build order (Step 1 scaffold, Step 3 registry, etc.). Before executing Phase 1, a `git log` check (prompted by noticing `docs/plan.md` already contained wording that hadn't been written yet in this session) revealed the entire functional app — all 9 field types, engines, PDF export, README — had already been committed in a parallel/prior session while this session was still doing the design review. The build-order assumption in the draft plan was stale the moment it was written.
+
+**What was verified:** Read the actual current `src/` file tree (fully populated, not empty) and compared the running app's styling (plain slate/blue default Tailwind) against the mockup to confirm the functional layer was complete but undesigned — a retrofit, not a greenfield build.
+
+**Changed:** Rewrote `docs/design-build-steps.md` from scratch as a pure visual-retrofit plan, naming the actual existing files to edit per step instead of hypothetical future ones, with an explicit note that no engine/type/context file should change in any step — only styling.
+
+---
+
+### 9. Canvas selection color — matched the mockup faithfully, then reverted twice after live feedback
+
+**Prompt:** "field when selected is highlighted with red color, remove this" — and, separately shortly after, "error should be displayed in sidebar form only, selected field has a red color, change it looks like their some error in field."
+
+**What happened:** The mockup's selected-canvas-field style (`border-primary` `#ec6a49` + `bg-primary-tint`) was implemented faithfully against the design reference and confirmed via screenshot to match the mockup's Builder screen exactly. In actual use, though, that same coral/red-orange tone read as an error/broken state — reported twice, once on its own, and again once it was compounded with a red "(No label)" fallback text added for entry 10's validation feature.
+
+**What was verified:** Checked computed styles to confirm the color really was the design system's `primary` accent token, not a stray danger-token bug — this was a genuine design-fidelity-vs-usability conflict, not a coding mistake, so the fix was a deliberate token swap rather than a bug fix.
+
+**Rejected and changed:** Switched the selected-field style to a neutral `border-ink/40 bg-surface-sunken` (no red/orange at all), and separately removed the red "(No label)" canvas fallback text entirely, relocating all label/title validation messaging into the sidebar/header, inline next to the one input each error concerns (see entry 10).
+
+---
+
+### 10. Field-label-required validation — page banner first, then moved to per-field inline only
+
+**Prompt:** "in template mode, fields can be saved with empty label, label should be required fields and checked before saving for all fields" — followed by "empty name saving for template name, should be required" — then "error should be displayed in sidebar form only" (entry 9).
+
+**What happened:** The first implementation blocked Save when any field had an empty label, surfaced via a page-level red banner plus a red "(No label)" marker on the canvas row. Feedback in entry 9 redirected this: errors should live only next to the field they concern, not as a page-wide banner or a canvas-level color change.
+
+**What was verified:** Confirmed `label` is a `BaseConfig` property shared by all 9 field types, so a single check (`config.label.trim() === ''`) generalizes with no per-type special-casing; confirmed via `tsc`/build that plumbing a new optional `labelError` through `BuilderContext` and every field's `ConfigPanel` type-checked cleanly end to end with no `any`.
+
+**Changed:** Removed the page banner and canvas marker entirely. Added `labelError` to `BuilderContext`, threaded it into every field's `ConfigPanel` Label `TextField`, and gave the shared `TextField` component a new `error` prop (red border + inline message) reusing the same `aria-invalid` CSS variant already used by Fill-mode fields. Applied the identical required-before-save + inline-error pattern to the template title. Both errors derive live from state, so they disappear the instant the field is fixed — no separate clear-on-edit logic needed.
+
+---
+
+### 11. Single Line Text prefix/suffix silently missing from PDF/response payload
+
+**Prompt:** "currently prefix and suffix is not part of exported pdf data, only typed string is shown. should we also show prefix and suffix in some way? wdyt" — followed by "but should we format it in some way for prefix and suffix can easily be identified in output?" — then "apply similar to number."
+
+**What happened:** Number field's `formatForDisplay` already concatenated `prefix + value + suffix` (e.g. `$1,250.00`), correctly. Single Line Text's `formatForDisplay` returned the raw typed value only, silently ignoring its own `config.prefix`/`config.suffix` — an inconsistency against an existing, already-correct precedent in the same codebase, not an open design question.
+
+**What was verified:** Confirmed `evaluateCondition`/`validate` for Single Line Text already correctly operate on the raw value and would be unaffected by a display-only fix. Recommended against adding visual separation between prefix/value/suffix in the PDF (brackets, spacing, distinct color) since prefix/suffix exist specifically so the value reads as one natural string (a URL, a currency amount) — and distinguishing them would fight the spec's explicit "a real document, not a debug dump" PDF-quality goal, plus would require `formatForDisplay`'s return type to change from plain string to HTML across all 9 field types for a cosmetic want.
+
+**Changed:** Made Single Line Text's `formatForDisplay` mirror Number field's pattern exactly (`${prefix ?? ''}${value}${suffix ?? ''}`, empty when nothing typed). Verified end-to-end that a Website field with prefix `https://` / suffix `.com` now exports `https://acme.com` in the PDF instead of just `acme`.
+
+---
+
+### 12. Responses-list avatar — name-guessing heuristic added to match the mockup, then removed as unreliable
+
+**Prompt:** (heuristic added earlier, unprompted, to match the mockup's named-respondent avatars) → "responses list page has a avatar componenet with ? in it. why do we need this? can we improve this UI" → "generic icon" → "remove name check, we cannot be sure that each form will have a name field."
+
+**What happened:** To match the mockup's "Jane Doe"-style avatar initials, a `findDisplayName` heuristic had been added that regex-matches a Single Line Text field whose label mentions "name" and shows its first letter as the avatar. Since most real templates won't have such a field (an event survey, a feedback form), most responses hit the fallback, which originally rendered a bare `?` — a symbol that reads as "broken/error," not "no name available."
+
+**What was verified:** Confirmed the fallback path would in fact be the *common* case for typical templates, not a rare edge case — meaning the heuristic mostly added a confusing default rather than a useful bonus for the majority of real usage.
+
+**Rejected and changed:** First replaced the `?` fallback with a generic person-icon SVG per explicit request. Then, once the underlying assumption was challenged directly (not every form has a name field), removed `findDisplayName` and its conditional entirely — every response row now shows the same generic icon unconditionally, with no guessing.
+
+---
+
+### 13. Response Preview modal — deliberately not built on the interactive FormRenderer
+
+**Prompt:** "add a preview button as well for each response which show previw of submmited form in modal view."
+
+**What was considered:** Reusing the existing Builder `PreviewModal`/`FormRenderer` pattern (which renders real, interactive `FillField` components bound to local state) was the obvious shortcut, but would render already-submitted, finalized answers inside inputs that look clickable and editable yet silently do nothing when interacted with — misleading for data that can no longer change.
+
+**What was verified:** Confirmed `exportPdf.ts` already establishes the correct pattern for displaying a finalized response: iterate `templateSnapshot.fields`, keep only those whose id is present in `values` (the already-finalized visible-fields set — deliberately not re-running the visibility engine, per the same reasoning already documented in `exportPdf.ts`), and render each via its registry `renderForPdf`/`formatForDisplay` hook.
+
+**Changed:** Built `ResponsePreviewModal` as a read-only label/value list reusing those same registry hooks (Section Header renders as a heading divider, every other field as a label/value row) instead of duplicating the pipeline logic a third time or introducing a new shared abstraction for a small, self-contained amount of logic. Verified visually, using a response with both a text field and a Section Header, that both row kinds render correctly.
