@@ -177,3 +177,39 @@ const visible = matchedEffects.includes('hide') ? false
 **What was verified:** Confirmed `exportPdf.ts` already establishes the correct pattern for displaying a finalized response: iterate `templateSnapshot.fields`, keep only those whose id is present in `values` (the already-finalized visible-fields set — deliberately not re-running the visibility engine, per the same reasoning already documented in `exportPdf.ts`), and render each via its registry `renderForPdf`/`formatForDisplay` hook.
 
 **Changed:** Built `ResponsePreviewModal` as a read-only label/value list reusing those same registry hooks (Section Header renders as a heading divider, every other field as a label/value row) instead of duplicating the pipeline logic a third time or introducing a new shared abstraction for a small, self-contained amount of logic. Verified visually, using a response with both a text field and a Section Header, that both row kinds render correctly.
+
+---
+
+## Post-launch maintenance phase
+
+### 14. Fallow dead-code audit — distinguishing real dead code from registry-pattern false positives
+
+**Prompt:** Filled in a templated-but-empty `AGENTS.md`, then ran `fallow audit`/`dead-code`/`health` per the user's "yes, use fallow" to decide what was actually worth fixing.
+
+**AI output:** Fallow flagged 10 "unused exports" — the 9 field-type definitions (`singleLineTextDefinition`, `numberDefinition`, etc.) plus `resolveFieldState` in `conditions.ts` — alongside one genuinely dead file (`Card.tsx`) and a misplaced build-only dependency.
+
+**What was verified:** Traced each of the 9 field-definition exports by hand: every one is passed to `registerField()` at module scope and imported only for that side effect via `src/fields/index.ts`, a pattern static analysis can't see; `grep` confirmed none is otherwise imported by name. Separately traced `resolveFieldState` and found the tool's framing was misleading — it isn't unused, it's a private helper still called internally by `resolveFieldStates` in the same file. A blind "remove unused export" auto-fix would have deleted a function that's actually load-bearing; the correct fix was dropping only the `export` keyword.
+
+**Rejected and changed:** Left the 9 field-registration exports untouched. Un-exported `resolveFieldState` (kept the function), deleted the genuinely-dead `Card.tsx`, moved `@tailwindcss/vite` to devDependencies, then executed a 6-task written plan (splitting `calculations.ts` to cut fan-in; deduplicating `isRangeValue`, text-field validation, and prefix/suffix input UI across field files) — duplication dropped from 515 lines (14.0%) across 12 files to 156 lines (4.3%) across 10, verified via `npm test`/`build`/`lint` plus a manual browser pass after every task before committing.
+
+---
+
+### 15. Condition-editor chip redesign — implemented, then reverted on explicit request
+
+**Prompt:** "conditional select chip UI is weird, its height does not match other inputs and icons is also not looking good. Cross icon is in vertical center."
+
+**AI output:** Normalized the effect-pill select, target-field select, and operator select to a shared explicit height (`h-8`), added right padding on all three so the native dropdown arrow had room, and restructured the row so the remove (✕) button sat in its own non-wrapping flex slot pinned to the top-right instead of trailing inline after three selects that could wrap onto multiple lines.
+
+**What was verified:** Rebuilt the exact reported scenario in the browser (two fields, one condition) before and after the change, and screenshotted the result — the row still wrapped in the 320px sidebar, with the operator select dropping to its own line.
+
+**Rejected and changed:** Immediately after the still-imperfect result was visible, the user said "revert chip changes" — reverted the file to its last committed state via `git checkout` rather than iterating further without direction. Left as an open item for a more deliberate follow-up pass (e.g. a narrower/stacked layout) instead of re-guessing at the same fix.
+
+---
+
+### 16. Post-launch UX reports — verified against the design mockup before fixing, not just from description
+
+**Prompt:** A batch of UX reports in one message: "why today label in date fields if user can change dates?", "dashboard form card UI, responses text not in highlited color as per design", "currently we can not go back should we add a header."
+
+**What was verified:** For the response-count color report, grepped the actual standalone mockup HTML (`docs/Form Builder - standalone.html`) rather than trusting the description alone, and found it explicitly renders `"N responses"` in `color: coral`, distinct from plain `"N fields"` text — confirming a concrete, unambiguous design-fidelity gap rather than a subjective preference. For the "Today" badge, traced that it renders from `config.prefillToday` (a Builder-time setting) rather than the field's live value, so it keeps reading "Today" after the date is edited away — confirmed via a manual Fill-mode test that changing the date left the badge unchanged. For the missing back-navigation, confirmed `ResponsesPage` already had a "Back to Templates" link but `BuilderPage`/`FillPage` had none.
+
+**Changed:** Highlighted the response count in `text-primary` on dashboard cards; removed the stale Today badge from Fill mode only (kept the Builder checkbox and its prefill behavior unchanged); extracted the existing back-link into a shared `BackLink` component and added it to Builder's header and the top of Fill, so all three pages behave consistently. Each fix verified in the browser end to end before committing.
