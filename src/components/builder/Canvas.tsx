@@ -56,6 +56,12 @@ const OPERATOR_TEXT: Record<string, string> = {
 }
 
 function describeValue(targetField: FormField | undefined, value: unknown): string {
+  if (targetField?.config.type === 'date') {
+    if (typeof value !== 'string' || value === '') return ''
+    // Reuse the field's own formatter so the chip's date matches Fill/PDF/Responses
+    // (e.g. locale-formatted "7/4/2026"), instead of the raw stored ISO string.
+    return getFieldDefinition('date').formatForDisplay?.(value, targetField.config) ?? value
+  }
   if (targetField?.config.type === 'singleSelect' || targetField?.config.type === 'multiSelect') {
     const options = targetField.config.options
     const lookup = (id: unknown) => options.find((o) => o.id === id)?.label ?? String(id)
