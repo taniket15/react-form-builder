@@ -116,7 +116,7 @@ export function BuilderPage() {
           }}
           onReorder={(orderedIds) => dispatch({ type: 'REORDER_FIELDS', orderedIds })}
         />
-        <div className="w-72 shrink-0 overflow-y-auto border-l border-ink/10 bg-surface-sunken p-3">
+        <div className="w-80 shrink-0 overflow-y-auto border-l border-ink/10 bg-surface-sunken p-3">
           {selectedField ? (
             <ConfigPanelHost
               field={selectedField}
