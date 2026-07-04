@@ -18,6 +18,12 @@ export interface RangeValue {
   max: number
 }
 
+export function isRangeValue(value: unknown): value is RangeValue {
+  if (typeof value !== 'object' || value === null) return false
+  const obj = value as Record<string, unknown>
+  return typeof obj.min === 'number' && typeof obj.max === 'number'
+}
+
 export interface Condition {
   id: string
   targetFieldId: string

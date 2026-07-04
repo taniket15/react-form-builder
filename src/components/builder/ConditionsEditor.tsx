@@ -1,4 +1,4 @@
-import type { Condition, ConditionEffect, ConditionOperator, FormField, RangeValue } from '../../types'
+import { isRangeValue, type Condition, type ConditionEffect, type ConditionOperator, type FormField } from '../../types'
 import { getFieldDefinition } from '../../fields/registry'
 import { Badge } from '../common/Badge'
 
@@ -20,12 +20,6 @@ const EFFECT_PILL_CLASSES: Record<ConditionEffect, string> = {
 
 const SMALL_SELECT = 'rounded-[8px] border border-ink/15 bg-surface px-1.5 py-1 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30'
 const SMALL_INPUT = 'rounded-[8px] border border-ink/15 bg-surface px-2 py-1 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30'
-
-function isRangeValue(value: unknown): value is RangeValue {
-  if (typeof value !== 'object' || value === null) return false
-  const obj = value as Record<string, unknown>
-  return typeof obj.min === 'number' && typeof obj.max === 'number'
-}
 
 function ValueEditor({
   targetField,

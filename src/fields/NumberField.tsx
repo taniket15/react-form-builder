@@ -1,5 +1,5 @@
 import { useId } from 'react'
-import type { NumberConfig, RangeValue } from '../types'
+import { isRangeValue, type NumberConfig } from '../types'
 import { TextField } from '../components/common/TextField'
 import { Checkbox } from '../components/common/Checkbox'
 import {
@@ -29,12 +29,6 @@ function toComparableNumber(value: unknown): number | null {
   if (typeof value === 'number') return value
   if (typeof value === 'string') return parseNumber(value)
   return null
-}
-
-function isRangeValue(value: unknown): value is RangeValue {
-  if (typeof value !== 'object' || value === null) return false
-  const obj = value as Record<string, unknown>
-  return typeof obj.min === 'number' && typeof obj.max === 'number'
 }
 
 function createDefaultConfig(): NumberConfig {
