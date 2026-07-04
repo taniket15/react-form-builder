@@ -6,16 +6,16 @@ const EFFECT_LABELS: Record<ConditionEffect, string> = {
   show: 'Show',
   hide: 'Hide',
   require: 'Require',
-  unrequire: 'Unrequire',
+  unrequire: 'Optional',
 }
 
 // Same colors as the Canvas condition-summary Badge (show=green, hide/require=danger-ish,
-// unrequire=neutral) — the effect select itself is styled to read as a pill.
+// unrequire=warning yellow) — the effect select itself is styled to read as a pill.
 const EFFECT_PILL_CLASSES: Record<ConditionEffect, string> = {
   show: 'bg-success-tint text-success',
   hide: 'bg-danger-tint text-danger',
   require: 'bg-danger-tint text-danger',
-  unrequire: 'bg-surface-sunken text-ink-soft',
+  unrequire: 'bg-warning-tint text-warning',
 }
 
 const SMALL_SELECT = 'rounded-[8px] border border-ink/15 bg-surface px-1.5 py-1 text-sm text-ink focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/30'
@@ -268,7 +268,7 @@ export function ConditionsEditor({
       </button>
       <p className="mt-3 text-xs text-muted">
         <span className="font-medium text-ink-soft">Precedence:</span> Hide beats Show, Require beats
-        Unrequire. A hidden field is never validated and is left out of the response &amp; PDF.
+        Optional. A hidden field is never validated and is left out of the response &amp; PDF.
       </p>
     </div>
   )

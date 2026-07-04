@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react'
 
-export type BadgeVariant = 'required' | 'show' | 'hide' | 'count' | 'today' | 'calc'
+export type BadgeVariant = 'required' | 'show' | 'hide' | 'require' | 'optional' | 'count' | 'today' | 'calc'
 
 const VARIANT_CLASSES: Record<BadgeVariant, string> = {
   required: 'bg-danger-tint text-danger',
   show: 'bg-success-tint text-success',
   hide: 'bg-danger-tint text-danger',
+  require: 'bg-danger-tint text-danger',
+  optional: 'bg-warning-tint text-warning',
   count: 'bg-surface-sunken text-ink-soft',
   today: 'bg-primary-tint text-primary',
   calc: 'bg-calc-tint text-calc',

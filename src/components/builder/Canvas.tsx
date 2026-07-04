@@ -15,7 +15,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import type { Condition, FormField } from '../../types'
 import { getFieldDefinition } from '../../fields/registry'
-import { Badge } from '../common/Badge'
+import { Badge, type BadgeVariant } from '../common/Badge'
 
 interface CanvasProps {
   fields: FormField[]
@@ -30,6 +30,15 @@ const EFFECT_TEXT: Record<Condition['effect'], string> = {
   hide: 'Hidden if',
   require: 'Required if',
   unrequire: 'Optional if',
+}
+
+// Same colors as the ConditionsEditor's effect pill (show=green, hide/require=danger-ish,
+// unrequire=neutral) — kept in sync so the canvas chip matches the editor's own styling.
+const EFFECT_BADGE_VARIANT: Record<Condition['effect'], BadgeVariant> = {
+  show: 'show',
+  hide: 'hide',
+  require: 'require',
+  unrequire: 'optional',
 }
 
 const OPERATOR_TEXT: Record<string, string> = {
@@ -119,7 +128,7 @@ function CanvasItem({
         <span className="text-xs text-muted">{definition.label}</span>
         {field.config.required && <Badge variant="required">Required</Badge>}
         {firstCondition && (
-          <Badge variant={firstCondition.effect === 'hide' ? 'hide' : 'show'}>
+          <Badge variant={EFFECT_BADGE_VARIANT[firstCondition.effect]}>
             {describeCondition(firstCondition, allFields)}
           </Badge>
         )}

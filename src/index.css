@@ -29,6 +29,9 @@
   --color-danger: #d64545;
   --color-danger-tint: #fdecec;
 
+  --color-warning: #93690a;
+  --color-warning-tint: #f8ecce;
+
   --font-sans: 'Figtree', ui-sans-serif, system-ui, sans-serif;
   --font-serif: Georgia, 'Times New Roman', serif;
 }
