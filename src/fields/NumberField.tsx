@@ -1,7 +1,7 @@
 import { useId } from 'react'
 import { isRangeValue, type NumberConfig } from '../types'
 import { TextField } from '../components/common/TextField'
-import { Checkbox } from '../components/common/Checkbox'
+import { LabelRequiredFields, DecimalPlacesField } from './configPanelFields'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -43,17 +43,7 @@ function createDefaultConfig(): NumberConfig {
 function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<NumberConfig>) {
   return (
     <div className="space-y-3">
-      <TextField
-        label="Label"
-        value={config.label}
-        onChange={(e) => onChange({ ...config, label: e.target.value })}
-        error={ctx.labelError}
-      />
-      <Checkbox
-        label="Required"
-        checked={config.required}
-        onChange={(e) => onChange({ ...config, required: e.target.checked })}
-      />
+      <LabelRequiredFields config={config} onChange={onChange} labelError={ctx.labelError} />
       <div className="grid grid-cols-2 gap-3">
         <TextField
           label="Min value"
@@ -72,19 +62,7 @@ function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<NumberConf
           }
         />
       </div>
-      <TextField
-        label="Decimal places (0–4)"
-        type="number"
-        min={0}
-        max={4}
-        value={config.decimalPlaces}
-        onChange={(e) =>
-          onChange({
-            ...config,
-            decimalPlaces: Math.min(4, Math.max(0, Number(e.target.value) || 0)),
-          })
-        }
-      />
+      <DecimalPlacesField config={config} onChange={onChange} />
       <div className="grid grid-cols-2 gap-3">
         <TextField
           label="Prefix"

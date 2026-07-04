@@ -1,7 +1,7 @@
 import { useId, type ChangeEvent } from 'react'
 import type { FileMeta, FileUploadConfig } from '../types'
 import { TextField } from '../components/common/TextField'
-import { Checkbox } from '../components/common/Checkbox'
+import { LabelRequiredFields } from './configPanelFields'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -48,17 +48,7 @@ function createDefaultConfig(): FileUploadConfig {
 function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<FileUploadConfig>) {
   return (
     <div className="space-y-3">
-      <TextField
-        label="Label"
-        value={config.label}
-        onChange={(e) => onChange({ ...config, label: e.target.value })}
-        error={ctx.labelError}
-      />
-      <Checkbox
-        label="Required"
-        checked={config.required}
-        onChange={(e) => onChange({ ...config, required: e.target.checked })}
-      />
+      <LabelRequiredFields config={config} onChange={onChange} labelError={ctx.labelError} />
       <TextField
         label="Allowed file types (comma-separated, e.g. .pdf,.jpg,.png)"
         value={config.allowedTypes ?? ''}

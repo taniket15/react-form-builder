@@ -2,6 +2,7 @@ import { useId } from 'react'
 import type { CalculationConfig, FormField } from '../types'
 import { TextField } from '../components/common/TextField'
 import { Badge } from '../components/common/Badge'
+import { DecimalPlacesField } from './configPanelFields'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -78,19 +79,7 @@ function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<Calculatio
           <option value="max">Maximum</option>
         </select>
       </label>
-      <TextField
-        label="Decimal places"
-        type="number"
-        min={0}
-        max={4}
-        value={config.decimalPlaces}
-        onChange={(e) =>
-          onChange({
-            ...config,
-            decimalPlaces: Math.min(4, Math.max(0, Number(e.target.value) || 0)),
-          })
-        }
-      />
+      <DecimalPlacesField config={config} onChange={onChange} label="Decimal places" />
       <div>
         <span className="field-label">Source fields (Number only)</span>
         {numberFields.length === 0 ? (

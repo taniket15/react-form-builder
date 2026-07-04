@@ -3,6 +3,7 @@ import type { DateConfig } from '../types'
 import { TextField } from '../components/common/TextField'
 import { Checkbox } from '../components/common/Checkbox'
 import { Badge } from '../components/common/Badge'
+import { LabelRequiredFields } from './configPanelFields'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -34,17 +35,7 @@ function createDefaultConfig(): DateConfig {
 function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<DateConfig>) {
   return (
     <div className="space-y-3">
-      <TextField
-        label="Label"
-        value={config.label}
-        onChange={(e) => onChange({ ...config, label: e.target.value })}
-        error={ctx.labelError}
-      />
-      <Checkbox
-        label="Required"
-        checked={config.required}
-        onChange={(e) => onChange({ ...config, required: e.target.checked })}
-      />
+      <LabelRequiredFields config={config} onChange={onChange} labelError={ctx.labelError} />
       <Checkbox
         label="Pre-fill with today's date"
         checked={config.prefillToday}

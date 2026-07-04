@@ -1,7 +1,7 @@
 import type { MultiSelectConfig } from '../types'
 import { OptionsEditor } from '../components/builder/OptionsEditor'
 import { TextField } from '../components/common/TextField'
-import { Checkbox } from '../components/common/Checkbox'
+import { LabelRequiredFields } from './configPanelFields'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -32,17 +32,7 @@ function createDefaultConfig(): MultiSelectConfig {
 function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<MultiSelectConfig>) {
   return (
     <div className="space-y-3">
-      <TextField
-        label="Label"
-        value={config.label}
-        onChange={(e) => onChange({ ...config, label: e.target.value })}
-        error={ctx.labelError}
-      />
-      <Checkbox
-        label="Required"
-        checked={config.required}
-        onChange={(e) => onChange({ ...config, required: e.target.checked })}
-      />
+      <LabelRequiredFields config={config} onChange={onChange} labelError={ctx.labelError} />
       <div className="grid grid-cols-2 gap-3">
         <TextField
           label="Min selections"

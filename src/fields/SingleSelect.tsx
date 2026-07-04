@@ -1,8 +1,7 @@
 import { useId } from 'react'
 import type { SingleSelectConfig } from '../types'
 import { OptionsEditor } from '../components/builder/OptionsEditor'
-import { TextField } from '../components/common/TextField'
-import { Checkbox } from '../components/common/Checkbox'
+import { LabelRequiredFields } from './configPanelFields'
 import {
   registerField,
   type FieldConfigPanelProps,
@@ -31,17 +30,7 @@ function createDefaultConfig(): SingleSelectConfig {
 function ConfigPanel({ config, onChange, ctx }: FieldConfigPanelProps<SingleSelectConfig>) {
   return (
     <div className="space-y-3">
-      <TextField
-        label="Label"
-        value={config.label}
-        onChange={(e) => onChange({ ...config, label: e.target.value })}
-        error={ctx.labelError}
-      />
-      <Checkbox
-        label="Required"
-        checked={config.required}
-        onChange={(e) => onChange({ ...config, required: e.target.checked })}
-      />
+      <LabelRequiredFields config={config} onChange={onChange} labelError={ctx.labelError} />
       <label className="field-label">
         Display type
         <select
