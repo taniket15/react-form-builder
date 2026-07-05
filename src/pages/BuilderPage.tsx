@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useState } from 'react'
+import { useCallback, useEffect, useMemo, useReducer, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTemplates } from '../context/TemplatesContext'
 import { builderReducer, createBlankTemplate } from '../builder/builderReducer'
@@ -55,6 +55,13 @@ export function BuilderPage() {
     setSelectedFieldId(field.id)
   }
 
+  // Stable across renders (no deps) so Canvas's memoized rows don't all invalidate
+  // on every keystroke elsewhere on the page — see Canvas.tsx's CanvasItem.
+  const handleRemoveField = useCallback((fieldId: string) => {
+    dispatch({ type: 'REMOVE_FIELD', fieldId })
+    setSelectedFieldId((prev) => (prev === fieldId ? null : prev))
+  }, [])
+
   function handleSave() {
     setSaveAttempted(true)
     if (draft.title.trim() === '') {
@@ -110,10 +117,7 @@ export function BuilderPage() {
           fields={draft.fields}
           selectedFieldId={selectedFieldId}
           onSelect={setSelectedFieldId}
-          onRemove={(fieldId) => {
-            dispatch({ type: 'REMOVE_FIELD', fieldId })
-            if (selectedFieldId === fieldId) setSelectedFieldId(null)
-          }}
+          onRemove={handleRemoveField}
           onReorder={(orderedIds) => dispatch({ type: 'REORDER_FIELDS', orderedIds })}
         />
         <div className="w-80 shrink-0 overflow-y-auto border-l border-ink/10 bg-surface-sunken p-3">

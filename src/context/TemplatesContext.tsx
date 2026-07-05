@@ -1,7 +1,9 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
   type ReactNode,
 } from 'react'
@@ -47,12 +49,20 @@ export function TemplatesProvider({ children }: { children: ReactNode }) {
     saveTemplates(templates)
   }, [templates])
 
-  const value: TemplatesContextValue = {
-    templates,
-    createTemplate: (template) => dispatch({ type: 'CREATE', template }),
-    updateTemplate: (template) => dispatch({ type: 'UPDATE', template }),
-    deleteTemplate: (id) => dispatch({ type: 'DELETE', id }),
-  }
+  const createTemplate = useCallback(
+    (template: FormTemplate) => dispatch({ type: 'CREATE', template }),
+    [],
+  )
+  const updateTemplate = useCallback(
+    (template: FormTemplate) => dispatch({ type: 'UPDATE', template }),
+    [],
+  )
+  const deleteTemplate = useCallback((id: string) => dispatch({ type: 'DELETE', id }), [])
+
+  const value: TemplatesContextValue = useMemo(
+    () => ({ templates, createTemplate, updateTemplate, deleteTemplate }),
+    [templates, createTemplate, updateTemplate, deleteTemplate],
+  )
 
   return (
     <TemplatesContext.Provider value={value}>{children}</TemplatesContext.Provider>

@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react'
 import {
   DndContext,
   closestCenter,
@@ -78,26 +79,34 @@ function describeValue(targetField: FormField | undefined, value: unknown): stri
 
 // Read-only summary of the field's first condition, for a quick glance on the canvas —
 // the ConditionsEditor (shown when the field is selected) is the source of truth for all rules.
-function describeCondition(condition: Condition, allFields: FormField[]): string {
-  const target = allFields.find((f) => f.id === condition.targetFieldId)
+// Takes the already-resolved target field (not the full field list) so a CanvasItem
+// only needs that one field as a prop, instead of the whole array — see below.
+function describeCondition(condition: Condition, target: FormField | undefined): string {
   const label = target?.config.label ?? 'field'
   const op = OPERATOR_TEXT[condition.operator] ?? condition.operator
   const value = describeValue(target, condition.value)
   return `${EFFECT_TEXT[condition.effect]} ${label} ${op} ${value}`.trim()
 }
 
-function CanvasItem({
+// Memoized so editing one field's config only re-renders that field's own row (and
+// any row whose condition targets it), not every row on the canvas. This only works
+// because every prop here is reference-stable for unrelated fields: `field` and
+// `conditionTarget` come from builderReducer's `fields.map(...)`, which reuses the
+// same object for every field it isn't replacing, and `onSelect`/`onRemove` are the
+// stable callbacks forwarded straight from Canvas's own props (see below) rather
+// than new closures created per row.
+const CanvasItem = memo(function CanvasItem({
   field,
-  allFields,
+  conditionTarget,
   selected,
   onSelect,
   onRemove,
 }: {
   field: FormField
-  allFields: FormField[]
+  conditionTarget?: FormField
   selected: boolean
-  onSelect: () => void
-  onRemove: () => void
+  onSelect: (fieldId: string) => void
+  onRemove: (fieldId: string) => void
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: field.id,
@@ -128,20 +137,24 @@ function CanvasItem({
       >
         ⠿
       </button>
-      <button type="button" onClick={onSelect} className="flex flex-1 flex-wrap items-center gap-2 text-left">
+      <button
+        type="button"
+        onClick={() => onSelect(field.id)}
+        className="flex flex-1 flex-wrap items-center gap-2 text-left"
+      >
         <span>{definition.icon}</span>
         <span className="text-sm font-medium text-ink">{field.config.label}</span>
         <span className="text-xs text-muted">{definition.label}</span>
         {field.config.required && <Badge variant="required">Required</Badge>}
         {firstCondition && (
           <Badge variant={EFFECT_BADGE_VARIANT[firstCondition.effect]}>
-            {describeCondition(firstCondition, allFields)}
+            {describeCondition(firstCondition, conditionTarget)}
           </Badge>
         )}
       </button>
       <button
         type="button"
-        onClick={onRemove}
+        onClick={() => onRemove(field.id)}
         className="px-1 text-muted hover:text-danger"
         aria-label="Remove field"
       >
@@ -149,10 +162,17 @@ function CanvasItem({
       </button>
     </div>
   )
-}
+})
 
 export function Canvas({ fields, selectedFieldId, onSelect, onRemove, onReorder }: CanvasProps) {
   const sensors = useSensors(useSensor(PointerSensor))
+
+  // Individual FormField objects keep their identity across renders for every field
+  // that isn't the one being edited (see builderReducer's UPDATE_FIELD). Looking up
+  // a condition's target through this map — instead of handing each CanvasItem the
+  // whole `fields` array — means an edit to field A only changes the `conditionTarget`
+  // prop for rows whose condition actually targets A.
+  const fieldsById = useMemo(() => new Map(fields.map((f) => [f.id, f])), [fields])
 
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
@@ -180,10 +200,12 @@ export function Canvas({ fields, selectedFieldId, onSelect, onRemove, onReorder 
             <CanvasItem
               key={field.id}
               field={field}
-              allFields={fields}
+              conditionTarget={
+                field.conditions[0] ? fieldsById.get(field.conditions[0].targetFieldId) : undefined
+              }
               selected={field.id === selectedFieldId}
-              onSelect={() => onSelect(field.id)}
-              onRemove={() => onRemove(field.id)}
+              onSelect={onSelect}
+              onRemove={onRemove}
             />
           ))}
         </div>

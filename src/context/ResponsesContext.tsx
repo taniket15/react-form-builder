@@ -1,7 +1,9 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
+  useMemo,
   useReducer,
   type ReactNode,
 } from 'react'
@@ -34,10 +36,15 @@ export function ResponsesProvider({ children }: { children: ReactNode }) {
     saveResponses(responses)
   }, [responses])
 
-  const value: ResponsesContextValue = {
-    responses,
-    createResponse: (response) => dispatch({ type: 'CREATE', response }),
-  }
+  const createResponse = useCallback(
+    (response: FormResponse) => dispatch({ type: 'CREATE', response }),
+    [],
+  )
+
+  const value: ResponsesContextValue = useMemo(
+    () => ({ responses, createResponse }),
+    [responses, createResponse],
+  )
 
   return (
     <ResponsesContext.Provider value={value}>{children}</ResponsesContext.Provider>
