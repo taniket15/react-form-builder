@@ -213,3 +213,29 @@ const visible = matchedEffects.includes('hide') ? false
 **What was verified:** For the response-count color report, grepped the actual standalone mockup HTML (`docs/Form Builder - standalone.html`) rather than trusting the description alone, and found it explicitly renders `"N responses"` in `color: coral`, distinct from plain `"N fields"` text — confirming a concrete, unambiguous design-fidelity gap rather than a subjective preference. For the "Today" badge, traced that it renders from `config.prefillToday` (a Builder-time setting) rather than the field's live value, so it keeps reading "Today" after the date is edited away — confirmed via a manual Fill-mode test that changing the date left the badge unchanged. For the missing back-navigation, confirmed `ResponsesPage` already had a "Back to Templates" link but `BuilderPage`/`FillPage` had none.
 
 **Changed:** Highlighted the response count in `text-primary` on dashboard cards; removed the stale Today badge from Fill mode only (kept the Builder checkbox and its prefill behavior unchanged); extracted the existing back-link into a shared `BackLink` component and added it to Builder's header and the top of Fill, so all three pages behave consistently. Each fix verified in the browser end to end before committing.
+
+---
+
+## Documentation phase
+
+### 17. Manual QA testing plan — grounded in the actual implementation, not just the spec
+
+**Prompt:** "review the assignment doc and prepare a detailed testing plan to test out all requirements, PDF, calculations, conditional logic, interaction between different fields — put it in `docs/` as a testing plan."
+
+**AI output:** Before writing any test cases, read the assignment doc in full plus every engine file (`conditions.ts`, `visibility.ts`, `calculations.ts`), the PDF exporter, the registry, and each of the 9 field-type files, so the plan's test cases would assert the app's *actual* behavior (button labels, routes, exact validation messages) rather than a generic re-statement of the spec. Produced `docs/testing-plan.md`: ~140 IDed test cases across 13 sections (per field type, the full conditional-operator × effect matrix, calculation aggregation edge cases, PDF export, persistence, and cross-field integration scenarios), plus an explicit appendix cross-referencing every README-documented judgment call (OR-like conditions, hide>show precedence, hidden-source calculations still counting, select-by-id storage) to the test case that verifies it.
+
+**What was verified:** Ran `npm run test` (6 files / 23 tests, all green) to confirm the plan's stated precondition — "the automated baseline must be green before manual QA starts" — was actually true at the time of writing, not just an assumed claim.
+
+**Outcome:** Accepted as written; no rejected AI output on this task since it was research-then-document rather than a design decision with multiple candidate approaches.
+
+---
+
+### 18. "Adding a field type" guide — corrected the README's own extensibility claim
+
+**Prompt:** "what steps should we take if we want to introduce a new field type" → clarified via question that the deliverable should be a written guide only, no code change.
+
+**AI output:** Traced the actual extension points by reading `registry.ts`, `types/field.ts`, `fields/index.ts`, `BuilderPage.tsx`, `FormRenderer.tsx`, `FieldPalette.tsx`, `configPanelFields.tsx`, and `exportPdf.ts` to confirm which files a new field type genuinely requires touching, rather than restating the README's claim at face value. Produced `docs/adding-a-field-type.md` with a concrete step-by-step recipe, a `FieldDefinition` member reference table, and an illustrative (not committed) `Email` field skeleton.
+
+**What was verified — and the discrepancy found:** `README.md` states adding a field type touches "exactly one new file... plus one import line." Tracing it by hand found this undercounts by one: TypeScript's closed discriminated union (`FieldType`/`FieldConfig` in `src/types/field.ts`) requires the new type to be added to both unions in that file — a second, small, unavoidable edit that isn't "one import line." This is a case where a documented claim in the codebase itself (not raw AI output) turned out to be slightly optimistic once traced against the actual type system constraints.
+
+**Rejected and changed:** Wrote the guide with the accurate count — "one new file + two small mechanical edits" — with an explicit closing section naming the discrepancy against the README's phrasing, instead of silently repeating the friendlier-sounding but inexact original claim. Also updated `README.md` itself (§1) to match the corrected count and link to the new guide.
