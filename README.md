@@ -1,8 +1,6 @@
-# Form Builder — Frontend Take-Home
+# Form Builder
 
 A browser-based form builder (Google Forms-style) with a **Builder Mode** (design a form template) and a **Fill Mode** (fill out a template, submit, export a PDF). Pure frontend — React + TypeScript, all data in `localStorage`, no backend.
-
-See `docs/plan.md` for the full architecture/design log this was built from, `docs/ai-usage-log.md` for the AI usage log, `docs/testing-plan.md` for the manual QA test plan, and `docs/adding-a-field-type.md` for the step-by-step guide to adding an 11th field type.
 
 ## Running locally
 
@@ -14,7 +12,21 @@ npm run test      # run the vitest unit suite
 npm run lint      # eslint
 ```
 
-Node 18+ recommended (uses `crypto.randomUUID()` and `structuredClone`, both standard since Node 17/modern browsers).
+Node 24+ (see `.nvmrc`) — uses `crypto.randomUUID()` and `structuredClone`, both standard in modern Node/browsers.
+
+## Documentation
+
+This README covers the schema and the reasoning behind the core architectural decisions. For everything else, see [`docs/README.md`](docs/README.md) for the full index — the short version:
+
+| Doc | Covers |
+|---|---|
+| [`docs/architecture.md`](docs/architecture.md) | System shape — layers, the registry + engine pipeline, data flow, invariants |
+| [`docs/adding-a-field-type.md`](docs/adding-a-field-type.md) | Step-by-step guide to adding a new field type |
+| [`docs/extending.md`](docs/extending.md) | Recipes for other extensions — condition operator, calculation aggregation, schema migration |
+| [`docs/ai-development.md`](docs/ai-development.md) | How this project is built with AI — skills, planning flow, prompt patterns |
+| [`docs/ai-usage-log.md`](docs/ai-usage-log.md) | Chronological log of significant AI-assisted decisions |
+| [`docs/testing-plan.md`](docs/testing-plan.md) | Manual QA test plan covering every requirement |
+| [`docs/archive/`](docs/archive/) | Point-in-time planning/design docs — historical, not maintained |
 
 ## Project structure
 
@@ -82,7 +94,7 @@ interface FormResponse {
 
 `src/fields/registry.ts` defines one interface, `FieldDefinition<C, V>`, that every field type implements: `createDefaultConfig`, `ConfigPanel`, `FillField`, `getInitialValue`, `validate`, and three optional hooks — `conditionOperators`/`evaluateCondition` (only for types that can be a condition target), `formatForDisplay` (label/value row in submit + PDF), `renderForPdf` (Section Header only — a structural heading, not a row). Each of the 9 field files self-registers with `registerField(...)` at module load; `src/fields/index.ts` just imports all 9 files for that side effect.
 
-**Adding a 10th field type touches one new file** (implementing the interface) plus two small mechanical edits — one import line in the barrel, and adding the type to the `FieldType`/`FieldConfig` unions in `src/types/field.ts` (unavoidable in a closed discriminated union). No switch statement anywhere branches on field type outside the registry itself. See `docs/adding-a-field-type.md` for the full step-by-step guide.
+**Adding a 10th field type touches one new file** plus two small edits — one import line in the barrel, and adding the type to the `FieldType`/`FieldConfig` unions in `src/types/field.ts` (unavoidable in a closed discriminated union). See `docs/adding-a-field-type.md` for the step-by-step guide, and `docs/architecture.md` for the couple of narrow, deliberate exceptions to "no field type outside the registry."
 
 There's exactly one deliberate type-erasure point in the whole app: the registry stores definitions as `FieldDefinition<FieldConfig, unknown>` internally (one `as unknown as` cast, inside `registerField`), so the map can hold 9 different concrete `(config, value)` type pairs. Every field module itself stays fully typed against its own concrete types — the erasure is confined to the registry's storage/lookup, not leaked into field implementations.
 
@@ -161,4 +173,4 @@ This matters because the alternative — field-editing actions living directly o
 - **Deleting templates and responses.** The spec doesn't ask for it, so it wasn't built, but `TemplatesContext`/`ResponsesContext` are already shaped to add `deleteTemplate`/`deleteResponse` trivially.
 - **Richer condition value pickers.** `ConditionsEditor` already branches its compare-value input by target field type (number/date/select-dropdown/range-pair/multi-checkbox), but a Single/Multi-line Text target still gets a plain text box with no autocomplete against existing values.
 - **A real design system pass.** Styling is intentionally minimal Tailwind utility classes — functional and consistent, not pixel-polished (which the spec explicitly says isn't the bar).
-- **Automated end-to-end tests.** The unit suite (23 tests) covers the engine layer thoroughly since that's the highest-risk correctness area, but there's no automated browser-driven test of the full Builder → Fill → Submit → PDF flow — that was verified manually throughout instead (browser automation wasn't available in the dev environment this was built in), following `docs/testing-plan.md`, the manual QA plan covering every field type, the conditional-logic operator/effect matrix, calculations, and PDF export quality.
+- **Automated end-to-end tests.** The unit suite (23 tests) covers the engine layer thoroughly since that's the highest-risk correctness area, but there's no automated browser-driven test of the full Builder → Fill → Submit → PDF flow — that was verified manually throughout instead, following `docs/testing-plan.md`.
