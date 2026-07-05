@@ -11,7 +11,8 @@ import type { FormResponse } from '../../types'
 // exportPdf.ts's buildRowsHtml), so we just filter+iterate templateSnapshot.fields
 // in order. Section Header renders as a heading (registry's `renderForPdf` presence
 // is the same "this is a heading, not a value" signal used elsewhere); every other
-// field renders its `formatForDisplay` value as a label/value row, matching the PDF.
+// field renders its `formatForDisplay` (or `formatForDisplayList`) value as a
+// label/value row, matching the PDF.
 export function ResponsePreviewModal({
   response,
   onClose,
@@ -53,6 +54,23 @@ export function ResponsePreviewModal({
                   >
                     {field.config.label}
                   </h3>
+                )
+              }
+              if (definition.formatForDisplayList) {
+                const items = definition.formatForDisplayList(values[field.id], field.config)
+                return (
+                  <div key={field.id}>
+                    <CategoryLabel>{field.config.label}</CategoryLabel>
+                    {items.length ? (
+                      <ul className="mt-0.5 list-disc pl-4 text-sm text-ink">
+                        {items.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="mt-0.5 text-sm italic text-muted">(no answer)</p>
+                    )}
+                  </div>
                 )
               }
               const display = definition.formatForDisplay?.(values[field.id], field.config) ?? ''

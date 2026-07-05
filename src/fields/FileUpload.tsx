@@ -167,10 +167,9 @@ export const fileUploadDefinition: FieldDefinition<FileUploadConfig, Value> = {
   getInitialValue: () => [],
   validate,
   // No conditionOperators — File Upload is excluded from condition targets (§1).
-  formatForDisplay: (value) => {
-    if (value.length === 0) return '(no files)'
-    return value.map((f) => `${f.name} (${formatFileSize(f.size)}) — file not embedded`).join('; ')
-  },
+  // Rendered as a bullet list (formatForDisplayList), not a single joined string —
+  // metadata-only storage, so each row is just name + size, no embedding claim.
+  formatForDisplayList: (value) => value.map((f) => `${f.name} — ${formatFileSize(f.size)}`),
 }
 
 registerField(fileUploadDefinition)

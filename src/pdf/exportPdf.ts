@@ -9,6 +9,13 @@ function renderFieldRow(field: FormField, value: unknown): string {
     return definition.renderForPdf(field.config)
   }
   const label = escapeHtml(field.config.label)
+  if (definition.formatForDisplayList) {
+    const items = definition.formatForDisplayList(value, field.config)
+    const valueHtml = items.length
+      ? `<ul class="pdf-value-list">${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}</ul>`
+      : '<span class="pdf-empty">(no answer)</span>'
+    return `<div class="pdf-field-row"><div class="pdf-field-label">${label}</div><div class="pdf-field-value">${valueHtml}</div></div>`
+  }
   const displayValue = definition.formatForDisplay ? definition.formatForDisplay(value, field.config) : ''
   const valueHtml = displayValue
     ? escapeHtml(displayValue)
@@ -58,6 +65,8 @@ function buildHtmlDocument(title: string, submittedAt: string, rowsHtml: string)
   }
   .pdf-field-value { font-size: 15px; font-weight: 600; line-height: 1.5; white-space: pre-wrap; }
   .pdf-field-value .pdf-empty { color: #a89e8c; font-style: italic; font-weight: 400; }
+  ul.pdf-value-list { margin: 0; padding-left: 18px; list-style: disc; }
+  ul.pdf-value-list li { margin: 0 0 2px; }
   .pdf-section-header {
     margin: 28px 0 12px; padding-bottom: 8px; border-bottom: 1px solid #2e2a24;
     text-transform: uppercase; letter-spacing: 0.04em;

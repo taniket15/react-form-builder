@@ -65,13 +65,24 @@ describe('buildRowsHtml', () => {
     expect(html).not.toContain('pdf-field-label')
   })
 
-  it('renders File Upload with a "file not embedded" note', () => {
+  it('renders File Upload as a bullet list of name + size, with no "file not embedded" note', () => {
     const upload = fileUploadField('f1', 'Attachment')
     const html = buildRowsHtml([upload], {
-      f1: [{ name: 'resume.pdf', size: 2048, type: 'application/pdf' }],
+      f1: [
+        { name: 'resume.pdf', size: 2048, type: 'application/pdf' },
+        { name: 'photo.jpg', size: 1024, type: 'image/jpeg' },
+      ],
     })
-    expect(html).toContain('resume.pdf')
-    expect(html).toContain('file not embedded')
+    expect(html).toContain('<ul class="pdf-value-list">')
+    expect(html).toContain('<li>resume.pdf — 2.0 KB</li>')
+    expect(html).toContain('<li>photo.jpg — 1.0 KB</li>')
+    expect(html).not.toContain('file not embedded')
+  })
+
+  it('renders File Upload with no files as "(no answer)"', () => {
+    const upload = fileUploadField('f1', 'Attachment')
+    const html = buildRowsHtml([upload], { f1: [] })
+    expect(html).toContain('<span class="pdf-empty">(no answer)</span>')
   })
 
   it("renders a visible Calculation field's computed value as a normal label/value row", () => {

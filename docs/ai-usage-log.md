@@ -239,3 +239,29 @@ const visible = matchedEffects.includes('hide') ? false
 **What was verified — and the discrepancy found:** `README.md` states adding a field type touches "exactly one new file... plus one import line." Tracing it by hand found this undercounts by one: TypeScript's closed discriminated union (`FieldType`/`FieldConfig` in `src/types/field.ts`) requires the new type to be added to both unions in that file — a second, small, unavoidable edit that isn't "one import line." This is a case where a documented claim in the codebase itself (not raw AI output) turned out to be slightly optimistic once traced against the actual type system constraints.
 
 **Rejected and changed:** Wrote the guide with the accurate count — "one new file + two small mechanical edits" — with an explicit closing section naming the discrepancy against the README's phrasing, instead of silently repeating the friendlier-sounding but inexact original claim. Also updated `README.md` itself (§1) to match the corrected count and link to the new guide.
+
+---
+
+## QA & verification phase
+
+### 19. Running the manual QA plan — a fully reproducible "bug" that turned out to be a shared-browser-session artifact
+
+**Prompt:** "run @docs/testing-plan.md and verify using playwright."
+
+**What happened:** Midway through building a comprehensive test template in Builder Mode, editing a Section Header field's Label caused it to vanish from the canvas entirely, reverting to the empty "Add a field" state. A background research agent was dispatched to trace the cause through `SectionHeader.tsx`, `builderReducer.ts`, and `Canvas.tsx`. Before its report came back, further manual testing in the primary session reproduced an even broader version of the same symptom: adding a *second* field of any type to a fresh canvas wiped *all* fields back to zero — repeatedly and deterministically, with no console error.
+
+**What was verified:** The dispatched agent could not reproduce the literal steps in its own isolated check and reported every relevant code path (`UPDATE_FIELD` reducer, `Canvas`'s render list, the Label `onChange` handler) was correct. Once that agent's task completed and nothing else was driving the browser, the exact same sequence — add Section Header, edit its label; add a second field — was redone step-by-step in the primary session alone, twice, and worked correctly both times. This pointed to the real cause: the background investigation agent and the primary session had been driving the *same* shared Playwright browser tab concurrently. The agent's own navigations and field-additions, run to test its own hypothesis, were interleaving with and overwriting the primary session's in-progress Builder draft — exactly what "fields vanish with no error and no page reload" would look like.
+
+**Rejected and changed:** Did not file this as a product bug. Deleted the tracking task for it once the shared-session explanation was confirmed, and avoided dispatching any further agent that also drives a browser while the primary session does the same for the rest of the run. This is the clearest "looked confirmed and reproducible, was actually the test harness" example from this project: a naive read would have reported a severe, repeatable data-loss bug in the Builder, built on real, repeated observations that were nonetheless caused by the test setup, not the app.
+
+---
+
+### 20. File Upload PDF export — replacing "file not embedded" text with a real list, via a new registry hook
+
+**Prompt:** "pdf structure for upload files seems not good, it should avoid text file not embedded and display files as a list with size data."
+
+**What was considered:** `FileUpload`'s field definition used `formatForDisplay`, which returns one plain string that `exportPdf.ts` HTML-escapes wholesale into a single value cell — joining multiple files with `"; "` and appending "— file not embedded" per file. Producing a real `<ul><li>` list from that hook would require either building raw HTML inside the field definition (bypassing the shared escaping and reopening an injection risk if a filename ever contained `<`/`&`), or reusing Section Header's `renderForPdf` hook — which both `exportPdf.ts` and `ResponsePreviewModal.tsx` already treat as "this field has no value, render a heading instead of a label/value row," a meaning that doesn't fit File Upload, which does have a value.
+
+**What was verified:** Grepped both call sites (`exportPdf.ts`, `ResponsePreviewModal.tsx`) to confirm `renderForPdf`'s presence is checked as the single signal for "structural heading, not a value" in exactly those two places — so overloading it for File Upload would have silently broken the Preview modal by dropping its label and rendering it as a bare heading. Confirmed the alternative (a new `formatForDisplayList: (value, config) => string[]` hook) keeps `formatForDisplay` (scalar), `formatForDisplayList` (list-shaped), and `renderForPdf` (no value) as three distinct, non-overlapping capabilities rather than overloading an existing one.
+
+**Changed:** Added `formatForDisplayList` to the `FieldDefinition` interface in `registry.ts`; `FileUpload.tsx` now returns `"name — size"` per file with no "file not embedded" text; both `exportPdf.ts` and `ResponsePreviewModal.tsx` render the array as an escaped `<ul>/<li>` list instead of a joined string. Updated `exportPdf.test.ts` to assert the new list markup and the absence of the old phrase. Verified `npm run test` (24/24), `npm run build`, and `npm run lint` all clean, and visually confirmed in a real browser tab that the exported PDF shows a bullet list of `filename — size` with no embedding claim.

@@ -52,6 +52,9 @@ export interface FieldDefinition<C extends FieldConfig, V> {
   ) => boolean
   /** Presence of this hook (vs. renderForPdf) is the capability signal — no boolean flag needed. */
   formatForDisplay?: (value: V, config: C) => string
+  /** For values that are naturally a list (File Upload) — rendered as a bullet list
+   * instead of one joined string. Takes precedence over formatForDisplay when present. */
+  formatForDisplayList?: (value: V, config: C) => string[]
   /** Section Header only: structural heading markup, no value. */
   renderForPdf?: (config: C) => string
 }
