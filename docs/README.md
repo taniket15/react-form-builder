@@ -4,7 +4,8 @@
 
 | Doc | Covers |
 |---|---|
-| [`../README.md`](../README.md) | Onboarding, localStorage schema, the 6 core architectural decisions and their rationale |
+| [`../README.md`](../README.md) | Onboarding, localStorage schema, a scannable summary of the core architectural decisions |
+| [`decisions.md`](decisions.md) | The extended "why" behind each architectural decision — moved out of the README to keep it a scan |
 | [`architecture.md`](architecture.md) | System shape — layer map, the registry + engine pipeline, data flow, invariants table |
 | [`adding-a-field-type.md`](adding-a-field-type.md) | Step-by-step guide to adding a new field type |
 | [`extending.md`](extending.md) | Recipes for other extensions — condition operator, calculation aggregation, schema migration |

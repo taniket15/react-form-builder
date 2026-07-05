@@ -1,6 +1,6 @@
 # Architecture
 
-Where things live, and the two patterns that make this app easy to extend. For the reasoning behind each decision, see the README's "Key architectural decisions" section — this doc is just the shape.
+Where things live, and the two patterns that make this app easy to extend. For the reasoning behind each decision, see [`decisions.md`](decisions.md) — this doc is just the shape.
 
 ## Layers
 
